@@ -1,0 +1,18 @@
+services:
+    weather_sensor.bridge.arduino:
+        class: Weather\SensorBundle\Bridge\Arduino\SensorManager
+        arguments:
+            - @doctrine.orm.entity_manager
+            - %arduino_address%
+    weather_sensor.brudge.arduino.devices.refresh:
+        class: Weather\SensorBundle\Bridge\Arduino\Command\ConnectedDevicesCommand
+        arguments:
+            - @weather_sensor.bridge.arduino
+        tags:
+            -  { name: console.command }
+    sensor_by_period_converter:
+        class: Weather\SensorBundle\Request\ParamConverter\SensorByPeriodConverter
+        tags:
+            - { name: request.param_converter, priority: -2, converter: sensor_by_period_converter }
+        arguments:
+            - @doctrine

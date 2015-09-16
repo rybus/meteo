@@ -1,0 +1,36 @@
+{% extends "FOSUserBundle::layout.html.twig" %}
+
+{%  block title %}
+    {{ parent() }} - connexion
+{%  endblock %}
+{% block fos_user_content %}
+
+    <form class="form-signin" action="{{ path("fos_user_security_check") }}" method="post">
+        <div style="text-align:center;">
+            <img src="{{ asset('images/sun.png') }}" style="width: 200px;" />
+        </div>
+        <br />
+        <input type="hidden" name="_csrf_token" value="{{ csrf_token }}" />
+        <h2 class="form-signin-heading">Connexion</h2>
+        {% if error %}
+            <div class="alert alert-danger" role="alert">{{ error|trans({}, 'FOSUserBundle') }}</div>
+        {% endif %}
+
+        <label for="username" class="sr-only">{{ 'security.login.username'|trans({}, 'FOSUserBundle') }}</label>
+        <input type="text" id="username" placeholder="Nom d'utilisateur" class="form-control"  name="_username" value="{{ last_username }}" required="required" />
+
+        <label for="password" class="sr-only">{{ 'security.login.password'|trans({}, 'FOSUserBundle') }}</label>
+        <input type="password" id="password" placeholder="Mot de passe" class="form-control"  name="_password" required="required" />
+
+         <div class="checkbox">
+                <label>
+        <input type="checkbox" id="remember_me" name="_remember_me" value="on" />
+        {{ 'security.login.remember_me'|trans({}, 'FOSUserBundle') }}
+        </label>
+</div>
+        <input class="btn btn-lg btn-primary btn-block" type="submit" id="_submit" name="_submit" value="{{ 'security.login.submit'|trans({}, 'FOSUserBundle') }}" />
+
+
+
+    </form>
+{% endblock fos_user_content %}

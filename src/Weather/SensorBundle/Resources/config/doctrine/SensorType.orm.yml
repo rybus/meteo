@@ -1,0 +1,28 @@
+Weather\SensorBundle\Entity\SensorType:
+    type: entity
+    table: null
+    repositoryClass: Weather\SensorBundle\Entity\Repository\SensorTypeRepository
+    id:
+        id:
+            type: integer
+            id: true
+            generator:
+                strategy: AUTO
+    fields:
+        name:
+            type: string
+            length: 255
+        unit:
+            type: string
+            length: 255
+        symbol:
+            type: string
+            length: 255
+        chipset:
+            type: string
+            length: 255
+    oneToMany:
+        sensors:
+            targetEntity: Sensor
+            mappedBy: type
+    lifecycleCallbacks: {  }

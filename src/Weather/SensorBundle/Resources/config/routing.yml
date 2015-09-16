@@ -1,0 +1,47 @@
+weather_sensor_homepage:
+    path:     /
+    defaults: { _controller: WeatherSensorBundle:Sensor:index }
+
+weather_stats:
+    path: /stats
+    defaults: { _controller: WeatherSensorBundle:Sensor:stats  }
+
+weather_sensor_settings:
+    path: /settings
+    defaults: { _controller: WeatherSensorBundle:Sensor:settings }
+
+weather_sensors_import:
+    path: /sensors/import/{rom}/{id}
+    defaults: { _controller: WeatherSensorBundle:Sensor:importSensor }
+
+weather_sensors_show_all:
+    path: /sensors
+    defaults: { _controller: WeatherSensorBundle:Sensor:showSensors }
+
+weather_sensors_refresh:
+    path: /sensors/refresh
+    defaults: { _controller: WeatherSensorBundle:Sensor:refresh }
+
+weather_sensors_edit:
+    path: /sensors/{id}/edit
+    defaults: { _controller: WeatherSensorBundle:Sensor:editSensor }
+
+weather_sensors_remove:
+    path: /sensors/{id}/remove
+    defaults: { _controller: WeatherSensorBundle:Sensor:removeSensor }
+
+weather_sensors_show:
+    path: /sensors/{id}
+    defaults: { _controller: WeatherSensorBundle:Sensor:showSensor }
+
+weather_sensors_show_period:
+    path: /sensors/{id}/start/{startDate}/end/{endDate}
+    defaults: { _controller: WeatherSensorBundle:Sensor:showSensorByPeriod }
+
+weather_sensors_csv:
+    path: /sensors/csv/{id}
+    defaults: { _controller: WeatherSensorBundle:Sensor:csvSensor }
+
+weather_sensors_csv_period:
+    path: /sensors/csv/{id}/start/{startDate}/end/{endDate}
+    defaults: { _controller: WeatherSensorBundle:Sensor:csvSensorByPeriod }

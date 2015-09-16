@@ -1,0 +1,139 @@
+{% extends '::base.html.twig' %}
+
+{% macro date_selection(sensor_id, current_start_date, current_end_date, start_date, end_date, label) %}
+    {% if current_start_date|date('Y-m-d') == start_date|date('Y-m-d') %}
+        {% set active = true %}
+    {% else %}
+        {% set active = false %}
+    {% endif %}
+    <a href="{{ path('weather_sensors_show_period',  {'id': sensor_id, 'startDate': start_date|date('Y-m-d'), 'endDate': end_date|date('Y-m-d')  }) }}"
+       class="btn {{ active ? 'btn-primary' : 'btn-default' }}">{{ label }}</a>
+{% endmacro %}
+
+{% block body %}
+
+    <h1>{{ sensor.name }}</h1>
+    <hr/>
+
+    <br/><br/>
+    <div class="text-center">
+        {{ _self.date_selection(sensor.id, startTime, endTime, "now", "now", "Aujourd'hui") }}
+        {{ _self.date_selection(sensor.id, startTime, endTime, "now"|date_modify("-7 days"), "now"|date('Y-m-d'), '7 derniers jours') }}
+        {{ _self.date_selection(sensor.id, startTime, endTime, "now"|date_modify("-30 days"), "now"|date('Y-m-d'), '30 derniers jours') }}
+        {{ _self.date_selection(sensor.id, startTime, endTime, "now"|date('Y') ~ '-01-01', "now"|date('Y') ~ '-12-31', "now"|date('Y')) }}
+        <a type="button" class="btn btn-default">Tout l'historique</a>
+    </div>
+    {% if maxMeasure is not null %}
+        <div style="font-size:1.3em;width:100px;float:right;">
+            <span class="label label-danger">MAX {{ maxMeasure|number_format(1, '.', ' ') ~ ' ' ~ sensor.type.symbol }} </span><br />
+            <span class="label label-default">MOY {{ avgMeasure|number_format(1, '.', ' ')  ~ ' ' ~ sensor.type.symbol }}</span><br />
+            <span class="label label-primary">MIN {{ minMeasure|number_format(1, '.', ' ') ~ ' ' ~ sensor.type.symbol }} </span><br />
+        </div>
+
+        <div id="temperatures">
+
+        </div>
+    {% else %}
+        <br />
+        <div class="alert alert-warning">
+            Aucune données n'est disponible pour la plage
+            du {{ startTime|date('d/m/Y H:i') }} au {{ endTime|date('d/m/Y H:i') }}.
+        </div>
+    {% endif %}
+{% endblock %}
+
+{% block javascripts %}
+
+    <script>
+        var margin = {top: 20, right: 20, bottom: 30, left: 50},
+                width = 960 - margin.left - margin.right,
+                height = 500 - margin.top - margin.bottom;
+
+        var parseDate = d3.time.format("%d-%b-%y %H:%M").parse;
+
+        var x = d3.time.scale()
+                .range([0, width]);
+
+        var y = d3.scale.linear()
+                .range([height, 0]);
+
+        var xAxis = d3.svg.axis()
+                .scale(x)
+                .orient("bottom");
+
+        var yAxis = d3.svg.axis()
+                .scale(y)
+                .orient("left");
+
+        var line = d3.svg.line()
+                .x(function (d) {
+                    return x(d.date);
+                })
+                .y(function (d) {
+                    return y(d.close);
+                });
+
+        var svg = d3.select("#temperatures").append("svg")
+                .attr("width", width + margin.left + margin.right)
+                .attr("height", height + margin.top + margin.bottom)
+                .append("g")
+                .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+        d3.csv("{{ path('weather_sensors_csv_period', {'id': sensor.id, 'startDate': startTime|date('Y-m-d'), 'endDate': endTime|date('Y-m-d')  }) }}", function (error, data) {
+            data.forEach(function (d) {
+                d.date = parseDate(d.date);
+                d.close = +d.close;
+            });
+
+            x.domain(d3.extent(data, function (d) {
+                return d.date;
+            }));
+            y.domain([0, d3.max(data, function (d) {
+                return Math.max(d.close);
+            })]);
+
+            svg.append("g")
+                    .attr("class", "x axis")
+                    .attr("transform", "translate(0," + height + ")")
+                    .call(xAxis);
+
+            svg.append("g")
+                    .attr("class", "y axis")
+                    .call(yAxis)
+                    .append("text")
+                    .attr("transform", "rotate(-90)")
+                    .attr("y", 6)
+                    .attr("dy", ".71em")
+                    .style("text-anchor", "end")
+                    .text("{{ sensor.type.unit ~ ' (' ~ sensor.type.symbol ~ ')'}}");
+
+            svg.append("path")
+                    .datum(data)
+                    .attr("class", "line")
+                    .attr("d", line);
+        });
+    </script>
+
+{% endblock %}
+
+{% block stylesheets %}
+    <style type="text/css">
+        .axis path,
+        .axis line {
+            fill: none;
+            stroke: #000;
+            shape-rendering: crispEdges;
+        }
+
+        .x.axis path {
+            display: none;
+        }
+
+        .line {
+            fill: none;
+            stroke: steelblue;
+            stroke-width: 1.5px;
+        }
+
+    </style>
+{% endblock %}
