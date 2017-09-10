@@ -13,4 +13,10 @@ AppBundle\Entity\Measure:
             type: float
         date:
             type: datetime
-    lifecycleCallbacks: {  }
+    manyToOne:
+        measureType:
+          targetEntity: AppBundle\Entity\MeasureType
+          joinColumn:
+            name: measure_type_id
+            referencedColumnName: id
+lifecycleCallbacks: {  }
