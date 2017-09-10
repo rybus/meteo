@@ -1,0 +1,16 @@
+AppBundle\Entity\Measure:
+    type: entity
+    table: null
+    repositoryClass: AppBundle\Repository\MeasureRepository
+    id:
+        id:
+            type: integer
+            id: true
+            generator:
+                strategy: AUTO
+    fields:
+        value:
+            type: float
+        date:
+            type: datetime
+    lifecycleCallbacks: {  }
