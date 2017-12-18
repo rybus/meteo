@@ -82,10 +82,15 @@ class Sensor
 
     public function getLabel()
     {
+        return $this->name . ' en ' . $this->getUnit();
+    }
+
+    public function getUnit()
+    {
         if ($this->supportedMeasure === self::HUMIDITY) {
-            return $this->name . ' en %';
+            return '%';
         } else {
-            return $this->name . ' en °C';
+            return '°C';
         }
     }
 }

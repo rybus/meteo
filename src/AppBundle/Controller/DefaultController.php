@@ -8,7 +8,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Validator\Constraints\DateTime;
+use Symfony\Component\HttpFoundation\Response;
 
 class DefaultController extends Controller
 {
@@ -33,19 +33,52 @@ class DefaultController extends Controller
 
     /**
      * @Route("/history/{id}", name="history")
-     * @param Request $request
      * @param Sensor $sensor
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function history(Request $request, Sensor $sensor)
+    public function history(Sensor $sensor)
     {
-        return $this->render('AppBundle:Meteo:history.html.twig', ['sensor' => $sensor]);
+        return $this->historyOnRange($sensor, new \DateTime('now'), new \DateTime('now'));
+    }
+
+    /**
+     * @Route("/history/{id}/{start}/{end}", name="history_range")
+     *
+     * @param Sensor $sensor
+     * @param \DateTime $start
+     * @param \DateTime $end
+     *
+     * @ParamConverter("start", options={"format": "d-m-Y"})
+     * @ParamConverter("end", options={"format": "d-m-Y"})
+     *
+     * @return Response
+     */
+    public function historyOnRange(Sensor $sensor, \DateTime $start, \DateTime $end)
+    {
+        $start->setTime(0, 0, 0);
+        $end->setTime(23, 59, 59);
+
+        $measureRepository = $this->getDoctrine()->getRepository('AppBundle:Measure');
+        $maxMeasure = $measureRepository->getMaxMeasuresBySensorAndRange($sensor, $start, $end);
+        $minMeasure = $measureRepository->getMinMeasuresBySensorAndRange($sensor, $start, $end);
+        $avgMeasure = $measureRepository->getAvgMeasuresBySensorAndRange($sensor, $start, $end);
+
+        return $this->render(
+            'AppBundle:Meteo:history.html.twig',
+            [
+                'sensor' => $sensor,
+                'max'    => $maxMeasure,
+                'min'    => $minMeasure,
+                'avg'    => $avgMeasure,
+                'start'  => $start->getTimestamp(),
+                'end'    => $end->getTimestamp()
+            ]
+        );
     }
 
     /**
      * @Route("/history/measures/{id}/{start}/{end}", name="measures_range")
      *
-     * @param Request $request
      * @param Sensor $sensor
      * @param \DateTime $start
      * @param \DateTime $end
@@ -55,7 +88,7 @@ class DefaultController extends Controller
      *
      * @return JsonResponse
      */
-    public function measures(Request $request, Sensor $sensor, \DateTime $start, \DateTime $end)
+    public function measures(Sensor $sensor, \DateTime $start, \DateTime $end)
     {
         $measureRepository = $this->getDoctrine()->getRepository('AppBundle:Measure');
 
@@ -67,7 +100,7 @@ class DefaultController extends Controller
         foreach ($measures as $measure) {
             $normalizedMeasures[] = [
                 'x' => $measure->getDate()->getTimestamp() * 1000,
-                'y' => (float) $measure->getValue()
+                'y' => (float)$measure->getValue()
             ];
         }
 

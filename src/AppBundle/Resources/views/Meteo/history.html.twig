@@ -5,7 +5,7 @@
 {% block headjavascripts %}
     <script>
         $(document).ready(function(){
-            var now_date = new Date(Date.now());
+            var now_date = new Date({{ start }}*1000)
             var now_str = now_date.getDate() + '-' + (now_date.getMonth()+1) + '-' + now_date.getFullYear();
             loadRange(now_str, now_str)
         });
@@ -34,7 +34,7 @@
                         content:"{y} °C @ {x}",
                         contentFormatter: function ( e ) {
                             // Hours part from the timestamp
-                            measure_date = new Date(e.entries[0].dataPoint.x);
+                            var measure_date = new Date(e.entries[0].dataPoint.x);
                             var hours = measure_date.getHours();
                             var minutes = "0" + measure_date.getMinutes();
                             var formattedTime = measure_date.getDate() + '/' + (measure_date.getMonth()+1) + '/ ' + measure_date.getFullYear() + ' ' + hours + ':' + minutes.substr(-2);
@@ -60,9 +60,18 @@
     <h1>{{ sensor.label }}</h1>
     <div id="chartContainer" style="height: 370px; width: 100%;"></div>
 
-    <hr />
-    <h1>Records sur la période</h1>
 
+    <hr />
+    <br />
+    <br />
+    <h1>Records sur la période</h1>
+    <small class="text-muted">Du {{ start|date('d/m/Y H:i') }} à {{ end|date('d/m/Y H:i') }}</small>
+    <br />
+    <ul>
+        <li>Minimum: <strong><span class="text-primary">{{ min.value }} {{ sensor.unit }}</span></strong> <small class="text-muted">le {{ min.date|date('d/m/Y à H:i') }}</small></li>
+        <li>Maximum: <strong><span class="text-danger">{{ max.value }} {{ sensor.unit }}</span></strong> <small class="text-muted">le {{ max.date|date('d/m/Y à H:i') }}</small></li>
+        <li>Moyenne: <strong>{{ avg.value_avg|number_format(1) }} {{ sensor.unit }}</strong></li>
+    </ul>
 
 {% endblock %}
 
