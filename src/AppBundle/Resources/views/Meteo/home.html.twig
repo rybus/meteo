@@ -1,0 +1,33 @@
+{% extends '::base.html.twig' %}
+
+{%  block title %}Foo{%  endblock %}
+
+{%  block body %}
+    <div class="row">
+        {%  for last_measure in last_measures %}
+        <div class="col-lg-4">
+            <div class="card" style="width: 20rem;">
+                <div class="card-body">
+                    <h4 class="card-title">{{ last_measure.sensor.name }}</h4>
+                    <small class="text-muted">
+                    {% if last_measure.measure.date|diff == 0 %}
+                        À l'instant
+                    {%  else %}
+                        Il y a {{ last_measure.measure.date|diff }} minutes
+                    {% endif %}
+                    </small>
+                    <p class="card-text">
+                        {%  if last_measure.sensor.supportedMeasure == constant('AppBundle\\Entity\\Sensor::HUMIDITY') %}
+                            <img width="25" height="25" src="https://images.duckduckgo.com/iu/?u=https%3A%2F%2Fcdn4.iconfinder.com%2Fdata%2Ficons%2Ffinite-misc%2F16%2Fwater-512.png&f=1" />{{ last_measure.measure.value }} %
+                        {%  else %}
+                            <img src="https://cdn2.iconfinder.com/data/icons/game-center-mixed-icons/512/temperature.png" width="25" height="25"/> {{ last_measure.measure.value }}°C
+                        {%  endif %}
+                    </p>
+                        <a href="#" class="card-link">historique</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+{% endblock %}
