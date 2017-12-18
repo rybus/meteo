@@ -5,8 +5,14 @@
 {% block headjavascripts %}
     <script>
         $(document).ready(function(){
+            var now_date = new Date(Date.now());
+            var now_str = now_date.getDate() + '-' + (now_date.getMonth()+1) + '-' + now_date.getFullYear();
+            loadRange(now_str, now_str)
+        });
+
+        function loadRange(start, end) {
             $.getJSON({
-                url: "measures/{{ sensor.id }}",
+                url: "measures/{{ sensor.id }}/"+start+"/"+end,
                 dataType: 'json',
                 success: renderGraph
             });
@@ -15,12 +21,26 @@
                 var chart = new CanvasJS.Chart("chartContainer", {
                     theme: "light2", // "light1", "light2", "dark1", "dark2"
                     animationEnabled: true,
-                    zoomEnabled: true,
-                    title: {
-                        text: "{{  sensor.label }}"
-                    },
                     axisX:{
                         valueFormatString: "DD/MM/YY HH:mm"
+                    },
+                    zoomEnabled: true,
+                    axisY:{
+                        labelFormatter: function ( e ) {
+                            return e.value + '°C';
+                        }
+                    },
+                    toolTip:{
+                        content:"{y} °C @ {x}",
+                        contentFormatter: function ( e ) {
+                            // Hours part from the timestamp
+                            measure_date = new Date(e.entries[0].dataPoint.x);
+                            var hours = measure_date.getHours();
+                            var minutes = "0" + measure_date.getMinutes();
+                            var formattedTime = measure_date.getDate() + '/' + (measure_date.getMonth()+1) + '/ ' + measure_date.getFullYear() + ' ' + hours + ':' + minutes.substr(-2);
+
+                            return e.entries[0].dataPoint.y + ' le ' + formattedTime
+                        }
                     },
                     data: [{
                         type: "spline",
@@ -31,13 +51,18 @@
 
                 chart.render();
             }
-        });
+        }
     </script>
 {%  endblock %}
 
 {%  block body %}
 
+    <h1>{{ sensor.label }}</h1>
     <div id="chartContainer" style="height: 370px; width: 100%;"></div>
+
+    <hr />
+    <h1>Records sur la période</h1>
+
 
 {% endblock %}
 

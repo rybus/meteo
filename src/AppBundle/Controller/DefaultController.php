@@ -3,10 +3,12 @@
 namespace AppBundle\Controller;
 
 use AppBundle\Entity\Sensor;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Validator\Constraints\DateTime;
 
 class DefaultController extends Controller
 {
@@ -41,21 +43,31 @@ class DefaultController extends Controller
     }
 
     /**
-     * @Route("/history/measures/{id}", name="measures")
+     * @Route("/history/measures/{id}/{start}/{end}", name="measures_range")
+     *
      * @param Request $request
      * @param Sensor $sensor
-     * @return \Symfony\Component\HttpFoundation\Response
+     * @param \DateTime $start
+     * @param \DateTime $end
+     *
+     * @ParamConverter("start", options={"format": "d-m-Y"})
+     * @ParamConverter("end", options={"format": "d-m-Y"})
+     *
+     * @return JsonResponse
      */
-    public function measures(Request $request, Sensor $sensor)
+    public function measures(Request $request, Sensor $sensor, \DateTime $start, \DateTime $end)
     {
         $measureRepository = $this->getDoctrine()->getRepository('AppBundle:Measure');
 
-        $measures = $measureRepository->findBy(['sensor' => $sensor]);
+        $start->setTime(0, 0, 0);
+        $end->setTime(23, 59, 59);
+
+        $measures = $measureRepository->getMeasuresBySensorAndRange($sensor, $start, $end);
         $normalizedMeasures = [];
         foreach ($measures as $measure) {
             $normalizedMeasures[] = [
                 'x' => $measure->getDate()->getTimestamp() * 1000,
-                'y' => (int)$measure->getValue()
+                'y' => (float) $measure->getValue()
             ];
         }
 

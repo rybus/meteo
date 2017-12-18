@@ -15,14 +15,29 @@ class MeasureRepository extends EntityRepository
 {
     public function getLastMeasureForSensor(Sensor $sensor)
     {
-        $qb =  $this->createQueryBuilder('m');
+        $qb = $this->createQueryBuilder('m');
 
         return $qb->leftJoin('m.sensor', 's')
-                ->where('s = :sensor')
-                ->orderBy('m.id', 'DESC')
-                ->setParameter('sensor', $sensor)
-                ->setMaxResults(1)
-                ->getQuery()->getSingleResult()
-            ;
+            ->where('s = :sensor')
+            ->orderBy('m.id', 'DESC')
+            ->setParameter('sensor', $sensor)
+            ->setMaxResults(1)
+            ->getQuery()->getSingleResult();
+    }
+
+    public function getMeasuresBySensorAndRange(Sensor $sensor, \DateTime $start, \DateTime $end)
+    {
+        $qb = $this->createQueryBuilder('m');
+
+        return $qb->leftJoin('m.sensor', 's')
+            ->where('s = :sensor')
+            ->andWhere($qb->expr()->gte('m.date', ':start'))
+            ->andWhere($qb->expr()->lte('m.date', ':end'))
+            ->orderBy('m.id', 'DESC')
+            ->setParameter('sensor', $sensor)
+            ->setParameter('start', $start)
+            ->setParameter('end', $end)
+
+            ->getQuery()->getResult();
     }
 }
