@@ -2,31 +2,19 @@
 import MySQLdb
 import sys, serial, argparse
 
+# TODO: remove passwords, use command arguments or prompt (better)
 db = MySQLdb.connect(host="localhost",    # your host, usually localhost
                      user="root",         # your username
                      passwd="toudidou",  # your password
                       db="meteo")        # name of the data base
 
-# you must create a Cursor object. It will let
-#  you execute all the queries you need
-
 cursor = db.cursor()
-# Use all the SQL you like
-cursor.execute("SELECT * from sensor")
 
-# print all the first cell of all the rows
-for row in cursor.fetchall():
-        print row[0]
-
-# create parser
 parser = argparse.ArgumentParser(description="Serial port")
-# add expected arguments
 parser.add_argument('--port', dest='port', required=True)
 
-# parse args
 args = parser.parse_args()
 
-#strPort = '/dev/tty.usbserial-A7006Yqh'
 strPort = args.port
 
 print('reading from serial port %s...' % strPort)
