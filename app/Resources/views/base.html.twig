@@ -8,6 +8,11 @@
         <link rel="stylesheet" href="{{ asset('css/bootstrap.min.css') }}">
         <link rel="stylesheet" href="{{ asset('css/starter.css') }}">
     {% endblock %}
+    {% block javascripts %}
+        <script src="{{ asset('js/jquery.min.js') }}"></script>
+        <script src="{{ asset('js/bootstrap.min.js') }}"></script>
+    {% endblock %}
+    {% block headjavascripts %}{%  endblock %}
 
 </head>
 <body>
@@ -35,9 +40,6 @@
 <div class="container">
     {% block body %}{% endblock %}
 </div>
-{% block javascripts %}
-    <script src="{{ asset('js/jquery.min.js') }}"></script>
-    <script src="{{ asset('js/bootstrap.min.js') }}"></script>
-{% endblock %}
+
 </body>
 </html>

@@ -23,7 +23,7 @@
                             <img src="https://cdn2.iconfinder.com/data/icons/game-center-mixed-icons/512/temperature.png" width="25" height="25"/> {{ last_measure.measure.value }}°C
                         {%  endif %}
                     </p>
-                        <a href="#" class="card-link">historique</a>
+                        <a href="{{  path('history', {'id': last_measure.sensor.id}) }}" class="card-link">historique</a>
                 </div>
             </div>
         </div>
