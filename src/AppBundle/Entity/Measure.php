@@ -22,8 +22,9 @@ class Measure
      */
     private $date;
 
-    /** @var MeasureType $measureType */
-    private $measureType;
+
+    /** @var Sensor $sensor*/
+    private $sensor;
 
 
     /**
@@ -37,19 +38,19 @@ class Measure
     }
 
     /**
-     * @return MeasureType
+     * @return Sensor
      */
-    public function getMeasureType()
+    public function getSensor()
     {
-        return $this->measureType;
+        return $this->sensor;
     }
 
     /**
-     * @param MeasureType $measureType
+     * @param Sensor $sensor
      */
-    public function setMeasureType(MeasureType $measureType)
+    public function setSensor($sensor)
     {
-        $this->measureType = $measureType;
+        $this->sensor = $sensor;
     }
 
     /**
@@ -83,7 +84,7 @@ class Measure
      *
      * @return Measure
      */
-    public function setDate($date)
+    public function setDate(\DateTime $date)
     {
         $this->date = $date;
 

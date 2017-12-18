@@ -1,13 +1,18 @@
 <?php
 
 namespace AppBundle\Entity;
-use Doctrine\Common\Collections\ArrayCollection;
 
 /**
  * Sensor
  */
 class Sensor
 {
+    /** @const string */
+    const HUMIDITY = 1;
+
+    /** @const string */
+    const TEMPERATURE = 2;
+
     /**
      * @var int
      */
@@ -18,17 +23,9 @@ class Sensor
      */
     private $name;
 
-    /** @var MeasureType[] $supportedMeasureType */
-    private $supportedMeasureTypes;
 
-    /**
-     * Sensor constructor.
-     */
-    public function __construct()
-    {
-        $this->supportedMeasureTypes = new ArrayCollection();
-    }
-
+    /** @var string*/
+    private $supportedMeasure;
 
     /**
      * Get id
@@ -65,49 +62,20 @@ class Sensor
     }
 
     /**
-     * @return MeasureType[]
+     * @return string
      */
-    public function getSupportedMeasureTypes()
+    public function getSupportedMeasure()
     {
-        return $this->supportedMeasureTypes;
+        return $this->supportedMeasure;
     }
 
     /**
-     * @param ArrayCollection $supportedMeasureType
-     *
+     * @param $supportedMeasure
      * @return $this
      */
-    public function setSupportedMeasureTypes(ArrayCollection $supportedMeasureType)
+    public function setSupportedMeasure($supportedMeasure)
     {
-        $this->supportedMeasureTypes = $supportedMeasureType;
-
-        return $this;
-    }
-
-    /**
-     * @param MeasureType $measureType
-     *
-     * @return $this
-     */
-    public function addSupportedMeasureType(MeasureType $measureType)
-    {
-        if (!$this->supportedMeasureTypes->contains($measureType)) {
-            $this->supportedMeasureTypes->add($measureType);
-        }
-
-        return $this;
-    }
-
-    /**
-     * @param MeasureType $measureType
-     * 
-     * @return $this
-     */
-    public function removeSupportedMeasureType(MeasureType $measureType)
-    {
-        if ($this->supportedMeasureTypes->contains($measureType)) {
-            $this->supportedMeasureTypes->removeElement($measureType);
-        }
+        $this->supportedMeasure = $supportedMeasure;
 
         return $this;
     }

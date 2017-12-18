@@ -10,13 +10,15 @@ AppBundle\Entity\Measure:
                 strategy: AUTO
     fields:
         value:
-            type: float
+            type: decimal
+            precision: 5
+            scale: 2
         date:
             type: datetime
     manyToOne:
-        measureType:
-          targetEntity: AppBundle\Entity\MeasureType
+        sensor:
+          targetEntity: AppBundle\Entity\Sensor
           joinColumn:
-            name: measure_type_id
+            name: sensor_id
             referencedColumnName: id
 lifecycleCallbacks: {  }

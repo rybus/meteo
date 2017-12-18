@@ -1,0 +1,5 @@
+services:
+   app_bundle.twig.diff:
+        class: AppBundle\Twig\AppExtension
+        tags:
+           - { name: twig.extension }

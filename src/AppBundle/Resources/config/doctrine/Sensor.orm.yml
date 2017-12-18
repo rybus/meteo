@@ -13,15 +13,7 @@ AppBundle\Entity\Sensor:
             type: string
             length: 255
             unique: true
-    manyToMany:
-        supportedMeasureTypes:
-            targetEntity: AppBundle\Entity\MeasureType
-            joinTable:
-                name: sensor_measur_types
-                joinColumns:
-                    sensor_id:
-                        referencedColumnName: id
-                inverseJoinColumns:
-                    measure_type_id:
-                        referencedColumnName: id
+        supportedMeasure:
+            type: smallint
+            length: 1
     lifecycleCallbacks: {  }
