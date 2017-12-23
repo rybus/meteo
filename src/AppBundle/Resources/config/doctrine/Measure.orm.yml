@@ -12,7 +12,7 @@ AppBundle\Entity\Measure:
         value:
             type: decimal
             precision: 5
-            scale: 2
+            scale: 1
         date:
             type: datetime
     manyToOne:
