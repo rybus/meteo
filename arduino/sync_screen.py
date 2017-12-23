@@ -4,7 +4,7 @@ import sys, serial, argparse
 
 # TODO: remove passwords, use command arguments or prompt (better)
 db = MySQLdb.connect(host="localhost",    # your host, usually localhost
-                     user="root",         # your username
+                     user="meteo",         # your username
                      passwd="toudidou",  # your password
                       db="meteo")        # name of the data base
 
