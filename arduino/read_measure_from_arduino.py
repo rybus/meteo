@@ -19,6 +19,7 @@ sensorPort = args.port
 print('reading from serial port %s...' % sensorPort)
 
 device = serial.Serial(sensorPort, 9600)
+measures = [-127, -127, -127, -127];
 while True:
     line = device.readline().strip()
     measure = line.split(';')
@@ -26,8 +27,9 @@ while True:
      
         sql = "INSERT INTO `measure` (`sensor_id`, `value`,  `date`) VALUES (%s, %s, NOW())"
         measure_type,sensor_id,value = measure
-        cursor.execute(sql, (sensor_id, value))
-        if measures[sensor_id] != value:
+
+        if measures[int(sensor_id) - 1] != value:
+            cursor.execute(sql, (sensor_id, value))
             print('inserting value', value, 'for sensor with ID ', sensor_id)
             db.commit()
             if cursor.lastrowid:
@@ -36,7 +38,7 @@ while True:
                 print('last insert id not found')
         else:
             print('ignored same previous value', value, 'for sensor with ID ', sensor_id)
-        measures[sensor_id] = value;
+        measures[int(sensor_id) - 1] = value;
                 
     else:
          print("Connected")
