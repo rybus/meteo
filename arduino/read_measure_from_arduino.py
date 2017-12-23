@@ -26,8 +26,8 @@ while True:
     if len(measure) > 1:
      
         sql = "INSERT INTO `measure` (`sensor_id`, `value`,  `date`) VALUES (%s, %s, NOW())"
-        measure_type,sensor_id,value = measure
-
+        measure_type,sensor_id,value = measure  
+        value = format(float(value), '.1f');
         if measures[int(sensor_id) - 1] != value:
             cursor.execute(sql, (sensor_id, value))
             print('inserting value', value, 'for sensor with ID ', sensor_id)
