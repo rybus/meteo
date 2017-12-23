@@ -23,15 +23,21 @@ while True:
     line = device.readline().strip()
     measure = line.split(';')
     if len(measure) > 1:
+     
         sql = "INSERT INTO `measure` (`sensor_id`, `value`,  `date`) VALUES (%s, %s, NOW())"
         measure_type,sensor_id,value = measure
         cursor.execute(sql, (sensor_id, value))
-        print('inserting value', value, 'for sensor with ID ', sensor_id)
-        db.commit()
-        if cursor.lastrowid:
-            print('last insert id', cursor.lastrowid)
+        if measures[sensor_id] != value:
+            print('inserting value', value, 'for sensor with ID ', sensor_id)
+            db.commit()
+            if cursor.lastrowid:
+                print('last insert id', cursor.lastrowid)
+            else:
+                print('last insert id not found')
         else:
-            print('last insert id not found')
+            print('ignored same previous value', value, 'for sensor with ID ', sensor_id)
+        measures[sensor_id] = value;
+                
     else:
          print("Connected")
 db.close()
