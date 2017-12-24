@@ -101,9 +101,7 @@ void printMeasures(String message)
 
   tft.fillScreen(BLACK);
   tft.setTextColor(WHITE);
-   tft.setTextSize(1);
   tft.setCursor(0, cursorMargin);
-  tft.println(message);
   tft.setTextColor(WHITE);  tft.setTextSize(3);
   tft.println("Temperature serre");
   tft.setTextSize(1);
@@ -172,7 +170,7 @@ void printMeasures(String message)
     tft.print(indoorTemperature);
     tft.setTextSize(2);
     tft.print(char(248));
-    tft.setTextSize(5);
+    tft.setTextSize(3);
     tft.println("C");
   }
 

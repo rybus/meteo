@@ -27,11 +27,15 @@ humidite_serre = temperature_serre = temperature_interieur = temperature_exterie
 while True:
     try:
         ser = serial.Serial(screenPort, 9600, timeout=1)
-        for sensor_id in range(1, 4):
+        time.sleep(1)
+        for sensor_id in range(1, 5):
             cursor.execute(query, [sensor_id])
             for (id, sensor_id, value, date) in cursor:
-                ser.write(str(date) +";"+str(sensor_id)+ ";"+ str(value)+ "\n".encode())
-                time.sleep(1)
-            time.sleep(4)
+                message = str(date) +";"+str(sensor_id)+ ";"+ str(value)+ "\n".encode()
+                print message
+                ser.write(message)
+                time.sleep(5)
+        ser.close();
+        time.sleep(60)
     except (OSError, serial.SerialException):
         pass
