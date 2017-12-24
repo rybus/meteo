@@ -32,9 +32,8 @@ while True:
         for sensor_id in range(1, 5):
             cursor.execute(query, [sensor_id])
             for (id, sensor_id, value, date) in cursor:
-                message = str(date) +";"+str(sensor_id)+ ";"+ str(value)+ "\n".encode()
                 d = datetime.datetime.strptime(str(date), "%Y-%m-%d %H:%M:%S")
-                measure_time = d.strftime('%H:%M')
+                message = str(d.strftime('%H:%M')) +";"+str(sensor_id)+ ";"+ str(value)+ "\n".encode()
                 print message
                 ser.write(message)
                 time.sleep(5)
