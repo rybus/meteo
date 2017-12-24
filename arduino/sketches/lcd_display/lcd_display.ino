@@ -106,7 +106,7 @@ void printMeasures(String message)
   tft.println("Temperature serre");
   cursorMargin += 33;
   tft.setCursor(20, cursorMargin);
-  tft.setTextColor(BLUE); tft.setTextSize(3);
+  tft.setTextColor(GREEN); tft.setTextSize(3);
   if (greenhouseTemperature == -127) {
     tft.println("?");
   } else {
@@ -114,8 +114,10 @@ void printMeasures(String message)
     tft.setTextSize(2);
     tft.print(char(248));
     tft.setTextSize(3);
-    tft.println("C");
-    tft.setTextColor(GREEN);
+    tft.print("C    ");
+    tft.setTextColor(CYAN);
+     tft.setCursor(210, cursorMargin);
+   
     tft.println(greenhouseTemperatureDate);
   
   }
@@ -127,14 +129,15 @@ void printMeasures(String message)
   
   cursorMargin += 33;
   tft.setCursor(20, cursorMargin);
-  tft.setTextColor(BLUE); tft.setTextSize(3);
+  tft.setTextColor(GREEN); tft.setTextSize(3);
   if (greenhouseHumidity == -127) {
     tft.println("?");
   } else {
     tft.print(greenhouseHumidity);
-    tft.setTextSize(2);
-    tft.println("%");
-     tft.setTextColor(GREEN);
+    tft.setTextSize(3);
+    tft.print("%    ");
+    tft.setTextColor(CYAN);
+    tft.setCursor(210, cursorMargin);
     tft.println(greenhouseHumidityDate);
   
   }
@@ -146,7 +149,7 @@ void printMeasures(String message)
   
   cursorMargin += 33;
   tft.setCursor(20, cursorMargin);
-  tft.setTextColor(BLUE); tft.setTextSize(3);
+  tft.setTextColor(GREEN); tft.setTextSize(3);
   if (outdoorTemperature == -127) {
     tft.println("?");
   } else {
@@ -154,8 +157,9 @@ void printMeasures(String message)
     tft.setTextSize(2);
     tft.print(char(248));
     tft.setTextSize(3);
-    tft.println("C");
-     tft.setTextColor(GREEN);
+    tft.print("C    ");
+    tft.setTextColor(CYAN);
+    tft.setCursor(210, cursorMargin);
     tft.println(outdoorTemperatureDate);
   }
   
@@ -166,7 +170,7 @@ void printMeasures(String message)
  
    cursorMargin += 33;
   tft.setCursor(20, cursorMargin);
-  tft.setTextColor(BLUE); tft.setTextSize(3);
+  tft.setTextColor(GREEN); tft.setTextSize(3);
   if (indoorTemperature == -127) {
     tft.println("?");
   } else {
@@ -174,9 +178,10 @@ void printMeasures(String message)
     tft.setTextSize(2);
     tft.print(char(248));
     tft.setTextSize(3);
-    tft.println("C");
-     tft.setTextColor(GREEN);
-     tft.println(indoorTemperatureDate);
+    tft.print("C    ");
+    tft.setTextColor(CYAN);
+    tft.setCursor(210, cursorMargin);
+    tft.println(indoorTemperatureDate);
   }
 
 }
