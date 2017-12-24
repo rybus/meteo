@@ -10,7 +10,7 @@ db = MySQLdb.connect(host="localhost",    # your host, usually localhost
                      user="meteo",         # your username
                      passwd="toudidou",  # your password
                       db="meteo")        # name of the data base
-
+db.autocommit(True)
 cursor = db.cursor()
 
 parser = argparse.ArgumentParser(description="Serial port (arduino connected to sensors)")
