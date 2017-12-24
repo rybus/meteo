@@ -19,16 +19,23 @@
 #define WHITE   0xFFFF
 
 #define SENSOR_OWR_TMP_1 3
+#define SENSOR_OWR_TMP_2 4
 #define SENSOR_DHT_TMP_1 2
 #define SENSOR_DHT_RHY_1 1
 
 Adafruit_TFTLCD tft(LCD_CS, LCD_CD, LCD_WR, LCD_RD, LCD_RESET);
 
 float greenhouseTemperature = -127;
+String greenhouseTemperatureDate = "01/01/1971 00:00";
 
 float outdoorTemperature = -127;
+String outdoorTemperatureDate = "01/01/1971 00:00";
 
 float greenhouseHumidity = -127;
+String greenhouseHumidityDate = "01/01/1971 00:00";
+
+float indoorTemperature = -127;
+String indoorTemperatureDate = "01/01/1971 00:00";
 
 void setup(void) {
   Serial.begin(9600);
@@ -37,29 +44,38 @@ void setup(void) {
   tft.begin(identifier);
   tft.setRotation(3);
   tft.fillScreen(BLACK);
-  printMeasures();
+  printMeasures("initialization");
 
 }
 
 void loop(void) {
   String message = Serial.readString();
+
    if (!message.equals("")) {
+    String date = String(getValue(message, ';', 0));
     int sensor_id = String(getValue(message, ';', 1)).toInt();
     float measure = String(getValue(message, ';', 2)).toFloat();
    
     switch(sensor_id) {
       case SENSOR_OWR_TMP_1:
         outdoorTemperature = measure;
+        outdoorTemperatureDate = date;
         break;
       case SENSOR_DHT_TMP_1:
         greenhouseTemperature = measure;
+        greenhouseTemperatureDate = date;
         break;
       case SENSOR_DHT_RHY_1:
         greenhouseHumidity = measure;
+        greenhouseHumidityDate = date;
         break;
+     case SENSOR_OWR_TMP_2:
+       indoorTemperature = measure;
+       indoorTemperatureDate = date;
+       break;        
     }
     tft.fillScreen(BLACK);
-    printMeasures();
+    printMeasures(message);
   }
 }
 
@@ -79,30 +95,41 @@ String getValue(String data, char separator, int index)
     return found > index ? data.substring(strIndex[0], strIndex[1]) : "";
 }
 
-void printMeasures() 
+void printMeasures(String message) 
 {
+  int cursorMargin = 5;
+
   tft.fillScreen(BLACK);
-  unsigned long start = micros();
-  tft.setCursor(0, 10);
+  tft.setTextColor(WHITE);
+   tft.setTextSize(1);
+  tft.setCursor(0, cursorMargin);
+  tft.println(message);
   tft.setTextColor(WHITE);  tft.setTextSize(3);
-  tft.println("Température ext.");
-  tft.setCursor(20, 40);
-  tft.setTextColor(BLUE); tft.setTextSize(5);
-  if (outdoorTemperature == -127) {
+  tft.println("Temperature serre");
+  tft.setTextSize(1);
+  tft.println(greenhouseTemperatureDate);
+  cursorMargin += 33;
+  tft.setCursor(20, cursorMargin);
+  tft.setTextColor(BLUE); tft.setTextSize(3);
+  if (greenhouseTemperature == -127) {
     tft.println("?");
   } else {
-    tft.print(outdoorTemperature);
+    tft.print(greenhouseTemperature);
     tft.setTextSize(2);
     tft.print(char(248));
-    tft.setTextSize(5);
+    tft.setTextSize(3);
     tft.println("C");
   }
   
-  tft.setCursor(0, 90);
+  cursorMargin += 25;
+  tft.setCursor(0, cursorMargin);
   tft.setTextColor(WHITE);  tft.setTextSize(3);
-  tft.println("Humidité serre");
-  tft.setCursor(20, 120);
-  tft.setTextColor(BLUE); tft.setTextSize(5);
+  tft.println("Humidite serre");
+  tft.setTextSize(1);
+  tft.println(greenhouseHumidityDate);
+  cursorMargin += 33;
+  tft.setCursor(20, cursorMargin);
+  tft.setTextColor(BLUE); tft.setTextSize(3);
   if (greenhouseHumidity == -127) {
     tft.println("?");
   } else {
@@ -110,19 +137,43 @@ void printMeasures()
     tft.setTextSize(2);
     tft.println("%");
   }
-  
-  tft.setCursor(0, 170);
+
+  cursorMargin += 25;
+  tft.setCursor(0, cursorMargin);
   tft.setTextColor(WHITE);  tft.setTextSize(3);
-  tft.println("Température int.");
-  tft.setCursor(20, 200);
-  tft.setTextColor(BLUE); tft.setTextSize(5);
-  if (greenhouseTemperature == -127) {
+  tft.println("Temperature ext.");
+  tft.setTextSize(1);
+  tft.println(outdoorTemperatureDate);
+  cursorMargin += 33;
+  tft.setCursor(20, cursorMargin);
+  tft.setTextColor(BLUE); tft.setTextSize(3);
+  if (outdoorTemperature == -127) {
     tft.println("?");
   } else {
-    tft.print(greenhouseTemperature);
+    tft.print(outdoorTemperature);
+    tft.setTextSize(2);
+    tft.print(char(248));
+    tft.setTextSize(3);
+    tft.println("C");
+  }
+  
+  cursorMargin += 25;
+  tft.setCursor(0, cursorMargin);
+  tft.setTextColor(WHITE);  tft.setTextSize(3);
+  tft.println("Temperature int.");
+    tft.setTextSize(1);
+  tft.println(indoorTemperatureDate);
+   cursorMargin += 33;
+  tft.setCursor(20, cursorMargin);
+  tft.setTextColor(BLUE); tft.setTextSize(3);
+  if (indoorTemperature == -127) {
+    tft.println("?");
+  } else {
+    tft.print(indoorTemperature);
     tft.setTextSize(2);
     tft.print(char(248));
     tft.setTextSize(5);
     tft.println("C");
   }
+
 }

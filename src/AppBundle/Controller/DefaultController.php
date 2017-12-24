@@ -20,7 +20,6 @@ class DefaultController extends Controller
         $measureRepository = $this->getDoctrine()->getRepository('AppBundle:Measure');
         $sensorRepository = $this->getDoctrine()->getRepository('AppBundle:Sensor');
         $lastSensorMeasure = [];
-
         foreach ($sensorRepository->findAll() as $sensor) {
             $lastSensorMeasure[] = [
                 'measure' => $measureRepository->getLastMeasureForSensor($sensor),

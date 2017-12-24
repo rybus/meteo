@@ -1,6 +1,8 @@
 #!/usr/bin/python
 import MySQLdb
 import sys, serial, argparse
+import time
+
 
 # TODO: remove passwords, use command arguments or prompt (better)
 db = MySQLdb.connect(host="localhost",    # your host, usually localhost
@@ -11,33 +13,25 @@ db = MySQLdb.connect(host="localhost",    # your host, usually localhost
 cursor = db.cursor()
 
 parser = argparse.ArgumentParser(description="Serial port (arduino connected to sensors)")
-parser.add_argument('--port_sensors', dest='port_sensors', required=True)
-parser.add_argument('--port_screen', dest='port_screen', required=True)
+parser.add_argument('--port', dest='port', required=True)
 args = parser.parse_args()
 
-sensorPort = args.port_sensors
-screenPort = args.port_screen
+screenPort = args.port
+query = ("SELECT * FROM measure "
+         "WHERE sensor_id = %s ORDER BY id DESC LIMIT 1")
 
 
-print('reading from serial port %s...' % sensorPort)
 print('sending for display on serial port %s..' % screenPort)
+humidite_serre = temperature_serre = temperature_interieur = temperature_exterieur = -127;
 
-device = serial.Serial(sensorPort, 9600)
-screen = serial.Serial(screenPort, 9600);
 while True:
-    line = device.readline().strip()
-    screen.write(line + "\n")
-    measure = line.split(';')
-    if len(measure) > 1:
-        sql = "INSERT INTO `measure` (`sensor_id`, `value`,  `date`) VALUES (%s, %s, NOW())"
-        measure_type,sensor_id,value = measure
-        cursor.execute(sql, (sensor_id, value))
-        print('inserting value', value, 'for sensor with ID ', sensor_id)
-        db.commit()
-        if cursor.lastrowid:
-            print('last insert id', cursor.lastrowid)
-        else:
-            print('last insert id not found')
-    else:
-         print("Connected")
-db.close()
+    try:
+        ser = serial.Serial(screenPort, 9600, timeout=1)
+        for sensor_id in range(1, 4):
+            cursor.execute(query, [sensor_id])
+            for (id, sensor_id, value, date) in cursor:
+                ser.write(str(date) +";"+str(sensor_id)+ ";"+ str(value)+ "\n".encode())
+                time.sleep(1)
+            time.sleep(4)
+    except (OSError, serial.SerialException):
+        pass
