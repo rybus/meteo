@@ -104,8 +104,6 @@ void printMeasures(String message)
   tft.setCursor(0, cursorMargin);
   tft.setTextColor(WHITE);  tft.setTextSize(3);
   tft.println("Temperature serre");
-  tft.setTextSize(1);
-  tft.println(greenhouseTemperatureDate);
   cursorMargin += 33;
   tft.setCursor(20, cursorMargin);
   tft.setTextColor(BLUE); tft.setTextSize(3);
@@ -117,14 +115,16 @@ void printMeasures(String message)
     tft.print(char(248));
     tft.setTextSize(3);
     tft.println("C");
+    tft.setTextColor(GREEN);
+    tft.println(greenhouseTemperatureDate);
+  
   }
   
   cursorMargin += 25;
   tft.setCursor(0, cursorMargin);
   tft.setTextColor(WHITE);  tft.setTextSize(3);
   tft.println("Humidite serre");
-  tft.setTextSize(1);
-  tft.println(greenhouseHumidityDate);
+  
   cursorMargin += 33;
   tft.setCursor(20, cursorMargin);
   tft.setTextColor(BLUE); tft.setTextSize(3);
@@ -134,14 +134,16 @@ void printMeasures(String message)
     tft.print(greenhouseHumidity);
     tft.setTextSize(2);
     tft.println("%");
+     tft.setTextColor(GREEN);
+    tft.println(greenhouseHumidityDate);
+  
   }
 
   cursorMargin += 25;
   tft.setCursor(0, cursorMargin);
   tft.setTextColor(WHITE);  tft.setTextSize(3);
   tft.println("Temperature ext.");
-  tft.setTextSize(1);
-  tft.println(outdoorTemperatureDate);
+  
   cursorMargin += 33;
   tft.setCursor(20, cursorMargin);
   tft.setTextColor(BLUE); tft.setTextSize(3);
@@ -153,14 +155,15 @@ void printMeasures(String message)
     tft.print(char(248));
     tft.setTextSize(3);
     tft.println("C");
+     tft.setTextColor(GREEN);
+    tft.println(outdoorTemperatureDate);
   }
   
   cursorMargin += 25;
   tft.setCursor(0, cursorMargin);
   tft.setTextColor(WHITE);  tft.setTextSize(3);
   tft.println("Temperature int.");
-    tft.setTextSize(1);
-  tft.println(indoorTemperatureDate);
+ 
    cursorMargin += 33;
   tft.setCursor(20, cursorMargin);
   tft.setTextColor(BLUE); tft.setTextSize(3);
@@ -172,6 +175,8 @@ void printMeasures(String message)
     tft.print(char(248));
     tft.setTextSize(3);
     tft.println("C");
+     tft.setTextColor(GREEN);
+     tft.println(indoorTemperatureDate);
   }
 
 }

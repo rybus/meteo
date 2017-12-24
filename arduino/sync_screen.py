@@ -2,6 +2,7 @@
 import MySQLdb
 import sys, serial, argparse
 import time
+import datetime
 
 
 # TODO: remove passwords, use command arguments or prompt (better)
@@ -32,6 +33,8 @@ while True:
             cursor.execute(query, [sensor_id])
             for (id, sensor_id, value, date) in cursor:
                 message = str(date) +";"+str(sensor_id)+ ";"+ str(value)+ "\n".encode()
+                d = datetime.datetime.strptime(str(date), "%Y-%m-%d %H:%M:%S")
+                measure_time = d.strftime('%H:%M')
                 print message
                 ser.write(message)
                 time.sleep(5)
