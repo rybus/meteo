@@ -27,7 +27,7 @@ humidite_serre = temperature_serre = temperature_interieur = temperature_exterie
 while True:
     try:
         ser = serial.Serial(screenPort, 9600, timeout=1)
-        time.sleep(1)
+        time.sleep(2)
         for sensor_id in range(1, 5):
             cursor.execute(query, [sensor_id])
             for (id, sensor_id, value, date) in cursor:
