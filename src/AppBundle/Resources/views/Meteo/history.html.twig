@@ -59,7 +59,20 @@
     <h1>{{ sensor.label }}</h1>
     <div id="chartContainer" style="height: 370px; width: 100%;"></div>
 
-
+    <a href="{{  path('history', {id: sensor.id}) }}">aujourd'hui</a> /
+    <a href="{{  path('history', {id: sensor.id}) }}">cette semaine</a> /
+    <a href="{{  path('history', {id: sensor.id}) }}">ce mois-ci</a> /
+    <a href="{{  path('history', {id: sensor.id}) }}">cette année</a>
+<hr />
+    <form class="form-inline">
+        <div class="form-group mx-sm-3">
+            <label for="startDate">du&nbsp;</label>
+            <input type="text" class="form-control" id="startDate"  value="{{ start|date('d/m/Y') }}" >
+            <label for="endDate">&nbsp;au&nbsp;</label>
+            <input type="text" class="form-control" id="endDate" value="{{ end|date('d/m/Y') }}">
+        </div>
+        <a class="btn btn-outline-primary" href="#">voir</a>
+    </form>
     <hr />
     <br />
     <br />
