@@ -24,7 +24,6 @@ DallasTemperature one_wire_bus(&oneWire);
 SoftwareSerial rs485(SERIAL_RX_PIN, SERIAL_TX_PIN);
 DeviceAddress dsb18b20_sensor = { 0x28, 0x88, 0xE4, 0x88, 0x05, 0x00, 0x00, 0x60 };
 
-byte request_id = 0;
 
 float bytes2Float(byte bytes_array[4]) {
    union {
