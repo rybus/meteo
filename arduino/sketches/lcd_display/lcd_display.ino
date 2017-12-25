@@ -52,17 +52,19 @@ void loop(void) {
   String message = Serial.readString();
 
    if (!message.equals("")) {
-    greenhouseHumidity =  String(getValue(message, ';', 0)).toFloat();
-    greenhouseHumidityDate = String(getValue(message, ';', 1));
 
-    greenhouseTemperature =  String(getValue(message, ';', 2)).toFloat();
-    greenhouseTemperatureDate =  String(getValue(message, ';', 3));
-
+    greenhouseHumidityDate = String(getValue(message, ';', 0));
+    greenhouseHumidity =  String(getValue(message, ';', 1)).toFloat();
+    
+    greenhouseTemperatureDate =  String(getValue(message, ';', 2));
+    greenhouseTemperature =  String(getValue(message, ';', 3)).toFloat();
+    
     outdoorTemperatureDate = String(getValue(message, ';', 4));
     outdoorTemperature = String(getValue(message, ';', 5)).toFloat();
+    
+    indoorTemperatureDate = String(getValue(message, ';', 6));
+    indoorTemperature = String(getValue(message, ';', 7)).toFloat();
 
-    indoorTemperature = String(getValue(message, ';', 6));
-    indoorTemperatureDate = String(getValue(message, ';', 7)).toFloat();
 
     tft.fillScreen(BLACK);
     printMeasures(message);

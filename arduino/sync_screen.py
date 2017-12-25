@@ -29,12 +29,12 @@ while True:
     try:
         ser = serial.Serial(screenPort, 9600, timeout=1)
         time.sleep(2)
+        message=""
         for sensor_id in range(1, 5):
             cursor.execute(query, [sensor_id])
-            message = ""
             for (id, sensor_id, value, date) in cursor:
                 d = datetime.datetime.strptime(str(date), "%Y-%m-%d %H:%M:%S")
-                message += str(d.strftime('%H:%M')) +";"+ str(value)+ "\n"
+                message += str(d.strftime('%H:%M')) +";"+ str(value)+ ";"
         print message
         ser.write(message.encode())
         ser.close();
