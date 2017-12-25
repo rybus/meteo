@@ -20,10 +20,10 @@ class DefaultController extends Controller
         $measureRepository = $this->getDoctrine()->getRepository('AppBundle:Measure');
         $sensorRepository = $this->getDoctrine()->getRepository('AppBundle:Sensor');
         $lastSensorMeasure = [];
-        foreach ($sensorRepository->findAll() as $sensor) {
+        foreach ($sensorRepository->findBy(['id' => [2, 3, 4]]) as $sensor) {
             $lastSensorMeasure[] = [
                 'measure' => $measureRepository->getLastMeasureForSensor($sensor),
-                'sensor' => $sensor
+                'sensor' => $sensor,
             ];
         }
 
@@ -33,6 +33,7 @@ class DefaultController extends Controller
     /**
      * @Route("/history/{id}", name="history")
      * @param Sensor $sensor
+     *
      * @return \Symfony\Component\HttpFoundation\Response
      */
     public function history(Sensor $sensor)
@@ -43,7 +44,7 @@ class DefaultController extends Controller
     /**
      * @Route("/history/{id}/{start}/{end}", name="history_range")
      *
-     * @param Sensor $sensor
+     * @param Sensor    $sensor
      * @param \DateTime $start
      * @param \DateTime $end
      *
@@ -62,15 +63,60 @@ class DefaultController extends Controller
         $minMeasure = $measureRepository->getMinMeasuresBySensorAndRange($sensor, $start, $end);
         $avgMeasure = $measureRepository->getAvgMeasuresBySensorAndRange($sensor, $start, $end);
 
+        $today = new \DateTime('now');
+        $todayRoute = $this->generateUrl(
+            'history_range',
+            [
+                'id' => $sensor->getId(),
+                'start' => $today->format('d-m-Y'),
+                'end' => $today->format('d-m-Y')
+            ]
+        );
+
+        $tomorrow = new \DateTime('tomorrow');
+        $weekStart = $tomorrow->modify('last monday');
+        $yesterday = new \DateTime('yesterday');
+        $weekEnd = $yesterday->modify('next sunday');
+        $weekRoute = $this->generateUrl(
+            'history_range',
+            [
+                'id' => $sensor->getId(),
+                'start' => $weekStart->format('d-m-Y'),
+                'end' => $weekEnd->format('d-m-Y')
+            ]
+        );
+
+        $monthRoute = $this->generateUrl(
+            'history_range',
+            [
+                'id' => $sensor->getId(),
+                'start' => '1-' . date('n') . '-' . date('Y'),
+                'end' => date('t') . '-' . date('n') . '-' . date('Y')
+            ]
+        );
+
+        $yearRoute = $this->generateUrl(
+            'history_range',
+            [
+                'id' => $sensor->getId(),
+                'start' => '1-1-' . date('Y'),
+                'end' => '31-12-' . date('Y')
+            ]
+        );
+
         return $this->render(
             'AppBundle:Meteo:history.html.twig',
             [
                 'sensor' => $sensor,
-                'max'    => $maxMeasure,
-                'min'    => $minMeasure,
-                'avg'    => $avgMeasure,
-                'start'  => $start->getTimestamp(),
-                'end'    => $end->getTimestamp()
+                'max' => $maxMeasure,
+                'min' => $minMeasure,
+                'avg' => $avgMeasure,
+                'start' => $start->getTimestamp(),
+                'end' => $end->getTimestamp(),
+                'todayRoute' => $todayRoute,
+                'weekRoute' => $weekRoute,
+                'monthRoute' => $monthRoute,
+                'yearRoute' => $yearRoute
             ]
         );
     }
@@ -78,7 +124,7 @@ class DefaultController extends Controller
     /**
      * @Route("/history/measures/{id}/{start}/{end}", name="measures_range")
      *
-     * @param Sensor $sensor
+     * @param Sensor    $sensor
      * @param \DateTime $start
      * @param \DateTime $end
      *
@@ -99,7 +145,7 @@ class DefaultController extends Controller
         foreach ($measures as $measure) {
             $normalizedMeasures[] = [
                 'x' => $measure->getDate()->getTimestamp() * 1000,
-                'y' => (float)$measure->getValue()
+                'y' => (float)$measure->getValue(),
             ];
         }
 

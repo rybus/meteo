@@ -4,7 +4,7 @@
 
 {% block body %}
     <div class="row">
-        <h1>Le {{ "now"|date("m/d/Y") }}</h1>
+        <h1>Le {{ "now"|date("d/m/Y") }}</h1>
         <hr/>
         <br />
         <br />
@@ -50,7 +50,7 @@
                                 {% endif %}
                             </p>
                             <a href="{{ path('history', {'id': last_measure.sensor.id}) }}"
-                               class="card-link">historique</a>
+                               class="card-link btn btn-primary">historique</a>
                         </div>
                     </div>
                 </div>
