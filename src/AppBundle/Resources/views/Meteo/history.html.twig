@@ -5,14 +5,17 @@
 {% block headjavascripts %}
     <script>
         $(document).ready(function(){
-            var now_date = new Date({{ start }}*1000)
+            var now_date = new Date({{ start }}*1000);
             var now_str = now_date.getDate() + '-' + (now_date.getMonth()+1) + '-' + now_date.getFullYear();
-            loadRange(now_str, now_str)
+
+            var end_date = new Date({{  end }}*1000);
+            var end_str = end_date.getDate() + '-' + (end_date.getMonth()+1) + '-' + end_date.getFullYear();
+            loadRange(now_str, end_str)
         });
 
         function loadRange(start, end) {
             $.getJSON({
-                url: "measures/{{ sensor.id }}/"+start+"/"+end,
+                url: "/history/measures/{{ sensor.id }}/"+start+"/"+end,
                 dataType: 'json',
                 success: renderGraph
             });
@@ -59,19 +62,19 @@
     <h1>{{ sensor.label }}</h1>
     <div id="chartContainer" style="height: 370px; width: 100%;"></div>
 
-    <a href="{{  path('history', {id: sensor.id}) }}">aujourd'hui</a> /
-    <a href="{{  path('history', {id: sensor.id}) }}">cette semaine</a> /
-    <a href="{{  path('history', {id: sensor.id}) }}">ce mois-ci</a> /
-    <a href="{{  path('history', {id: sensor.id}) }}">cette année</a>
+    <a href="{{  todayRoute}}">aujourd'hui</a> /
+    <a href="{{  weekRoute }}">cette semaine</a> /
+    <a href="{{  monthRoute }}">ce mois-ci</a> /
+    <a href="{{  yearRoute }}">cette année</a>
 <hr />
     <form class="form-inline">
         <div class="form-group mx-sm-3">
             <label for="startDate">du&nbsp;</label>
-            <input type="text" class="form-control" id="startDate"  value="{{ start|date('d/m/Y') }}" >
+            <input type="text" class="form-control" id="startDate"  value="{{ start|date('d-m-Y') }}" >
             <label for="endDate">&nbsp;au&nbsp;</label>
-            <input type="text" class="form-control" id="endDate" value="{{ end|date('d/m/Y') }}">
+            <input type="text" class="form-control" id="endDate" value="{{ end|date('d-m-Y') }}">
         </div>
-        <a class="btn btn-outline-primary" href="#">voir</a>
+        <a id="see_graph" class="btn btn-outline-primary" href="#">voir</a>
     </form>
     <hr />
     <br />
@@ -84,6 +87,17 @@
         <li>Maximum: <strong><span class="text-danger">{{ max.value }} {{ sensor.unit }}</span></strong> <small class="text-muted">at  {{ max.date|date('d/m/Y  H:i') }}</small></li>
         <li>Moyenne: <strong>{{ avg.value_avg|number_format(1) }} {{ sensor.unit }}</strong></li>
     </ul>
+
+    <script>
+        $('#see_graph').click(function () {
+            var date_start = $('#startDate').val();
+            var date_end = $('#endDate').val();
+
+            url = '/history/{{ sensor.id }}/' + date_start + '/' +date_end;
+
+            $(this).attr("href", url);
+        });
+    </script>
 
 {% endblock %}
 
