@@ -24,11 +24,15 @@ query = ("SELECT * FROM measure "
 
 print('sending for display on serial port %s..' % screenPort)
 humidite_serre = temperature_serre = temperature_interieur = temperature_exterieur = -127;
+ser = serial.Serial(screenPort, 9600, timeout=1)
+time.sleep(2)
 
 while True:
     try:
-        ser = serial.Serial(screenPort, 9600, timeout=1)
-        time.sleep(2)
+        if not ser.is_open:
+          ser = serial.Serial(screenPort, 9600, timeout=1)
+          time.sleep(2)
+        
         message=""
         for sensor_id in range(1, 5):
             cursor.execute(query, [sensor_id])
@@ -37,7 +41,6 @@ while True:
                 message += str(d.strftime('%H:%M')) +";"+ str(value)+ ";"
         print message
         ser.write(message.encode())
-        ser.close();
         time.sleep(60)
     except (OSError, serial.SerialException):
         pass

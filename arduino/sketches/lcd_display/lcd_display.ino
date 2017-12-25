@@ -113,27 +113,6 @@ void printMeasures(String message)
     tft.println(greenhouseTemperatureDate);
 
   }
-
-  cursorMargin += 25;
-  tft.setCursor(0, cursorMargin);
-  tft.setTextColor(WHITE);  tft.setTextSize(3);
-  tft.println("Humidite serre");
-
-  cursorMargin += 30;
-  tft.setCursor(20, cursorMargin);
-  tft.setTextColor(GREEN); tft.setTextSize(3);
-  if (greenhouseHumidity == -127) {
-    tft.println("?");
-  } else {
-    tft.print(greenhouseHumidity);
-    tft.setTextSize(3);
-    tft.print(" %    ");
-    tft.setTextColor(CYAN);
-    tft.setCursor(210, cursorMargin);
-    tft.println(greenhouseHumidityDate);
-
-  }
-
   cursorMargin += 25;
   tft.setCursor(0, cursorMargin);
   tft.setTextColor(WHITE);  tft.setTextSize(3);

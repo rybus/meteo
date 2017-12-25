@@ -24,7 +24,6 @@ while True:
     line = device.readline().strip()
     measure = line.split(';')
     if len(measure) > 1:
-
         sql = "INSERT INTO `measure` (`sensor_id`, `value`,  `date`) VALUES (%s, %s, NOW())"
         measure_type,sensor_id,value = measure
         value = format(float(value), '.1f');
@@ -32,17 +31,14 @@ while True:
             cursor.execute(sql, (sensor_id, value))
             print('inserting value', value, 'for sensor with ID ', sensor_id)
             db.commit()
-            if cursor.lastrowid:
-                print('last insert id', cursor.lastrowid)
-            else:
-                print('last insert id not found')
-        # sensors send messages every 30sec. here is to ignore all but one in 15min.
-        elif measures[int(sensor_id) - 1] == 30:
-            measures[int(sensor_id) - 1] = 0;
         else:
-            print('ignored same previous value', value, 'for sensor with ID ', sensor_id)
-        measures[int(sensor_id) - 1] += 1;
+            print('ignore value (#',  measures[int(sensor_id) - 1], '/20) for sensor with ID ', sensor_id)
 
+        if measures[int(sensor_id) - 1] == 20:
+            # sensors send messages every 30sec. here is to ignore all but one in 15min.
+            measures[int(sensor_id) - 1] = 0;
+        else: 
+            measures[int(sensor_id) - 1] += 1;
     else:
          print("Connected")
 db.close()
