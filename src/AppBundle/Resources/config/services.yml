@@ -11,7 +11,7 @@ services:
    shader:
        class: AppBundle\Color\Shader
        arguments:
-          - '%min_temp%'
-          - '%max_temp%'
-          - [32, 175, 204 ]
-          - [239, 75, 43 ]
+          - '%min_temperature%'
+          - '%max_temperature%'
+          - '%cold_color%'
+          - '%hot_color%'

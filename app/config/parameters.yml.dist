@@ -17,4 +17,7 @@ parameters:
 
     # A secret key that's used to generate certain security-related tokens
     secret: ThisTokenIsNotSoSecretChangeIt
-    arduino_address: http://arduino.local/arduino
+    min_temperature: -15
+    max_temperature: 30
+    cold_color: [32, 175, 204]
+    hot_color: [239, 75, 43]
