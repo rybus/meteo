@@ -8,3 +8,10 @@ services:
        class: Twig_Extensions_Extension_Intl
        tags:
            - { name: twig.extension }
+   shader:
+       class: AppBundle\Color\Shader
+       arguments:
+          - '%min_temperature%'
+          - '%max_temperature%'
+          - '%cold_color%'
+          - '%hot_color%'

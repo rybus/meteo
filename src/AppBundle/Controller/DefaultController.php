@@ -44,7 +44,7 @@ class DefaultController extends Controller
     /**
      * @Route("/history/{id}/{start}/{end}", name="history_range")
      *
-     * @param Sensor    $sensor
+     * @param Sensor $sensor
      * @param \DateTime $start
      * @param \DateTime $end
      *
@@ -124,7 +124,7 @@ class DefaultController extends Controller
     /**
      * @Route("/history/measures/{id}/{start}/{end}", name="measures_range")
      *
-     * @param Sensor    $sensor
+     * @param Sensor $sensor
      * @param \DateTime $start
      * @param \DateTime $end
      *
@@ -136,6 +136,7 @@ class DefaultController extends Controller
     public function measures(Sensor $sensor, \DateTime $start, \DateTime $end)
     {
         $measureRepository = $this->getDoctrine()->getRepository('AppBundle:Measure');
+        $shader = $this->get('shader');
 
         $start->setTime(0, 0, 0);
         $end->setTime(23, 59, 59);
@@ -146,6 +147,7 @@ class DefaultController extends Controller
             $normalizedMeasures[] = [
                 'x' => $measure->getDate()->getTimestamp() * 1000,
                 'y' => (float)$measure->getValue(),
+                'lineColor' => $shader->shade((float)$measure->getValue())
             ];
         }
 
