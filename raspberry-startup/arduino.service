@@ -1,0 +1,13 @@
+[Unit]
+Description=Arduino
+After=apache2.service
+
+[Service]
+Type=simple
+User=pi
+WorkingDirectory=/home/pi/meteo/arduino
+ExecStart=/home/pi/meteo/arduino/read_measure_from_arduino.py --port=/dev/ttyUSB0
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
