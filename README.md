@@ -11,7 +11,6 @@
 - Clone this repository to your home folder
 - `composer install`
 
-
 ## Crontab for WiFi auto re-connection
 
 Wifi connection can drop, this will reconnects it automatically
@@ -20,6 +19,19 @@ Wifi connection can drop, this will reconnects it automatically
 # crontab -e
 */5 * * * * /home/pi/meteo/raspberry-startup/wifi_autoconnect.sh > /var/logs/wifi_connection.log 2>&1
 ```
+
+## Set up auto start for screen and data reading
+
+Copy raspberry-startup/arduino.service and screen.service to `/etc/systemd/system/`.
+
+```bash
+systemctl enable arduino
+systemctl enable screen
+systemctl start arduino
+systemctl start screen
+```
+
+These commands will make both scripts to run at startup and start them immediately.
 
 ## Securing WiFi
 
