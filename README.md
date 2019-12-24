@@ -37,7 +37,7 @@ These commands will make both scripts to run at startup and start them immediate
 
 Aavoid having your WiFi password in plain text
 
-1. wpa_passphrase "wifi name"
+1. `wpa_passphrase "wifi name"`
 2. Type in actual password
 3. Replace content in `/etc/wpa_supplicant/wpa_supplicant.conf`
 
