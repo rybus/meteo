@@ -58,11 +58,6 @@ class DefaultController extends Controller
         $start->setTime(0, 0, 0);
         $end->setTime(23, 59, 59);
 
-        $measureRepository = $this->getDoctrine()->getRepository('AppBundle:Measure');
-        $maxMeasure = $measureRepository->getMaxMeasuresBySensorAndRange($sensor, $start, $end);
-        $minMeasure = $measureRepository->getMinMeasuresBySensorAndRange($sensor, $start, $end);
-        $avgMeasure = $measureRepository->getAvgMeasuresBySensorAndRange($sensor, $start, $end);
-
         $today = new \DateTime('now');
         $todayRoute = $this->generateUrl(
             'history_range',
@@ -108,9 +103,6 @@ class DefaultController extends Controller
             'AppBundle:Meteo:history.html.twig',
             [
                 'sensor' => $sensor,
-                'max' => $maxMeasure,
-                'min' => $minMeasure,
-                'avg' => $avgMeasure,
                 'start' => $start->getTimestamp(),
                 'end' => $end->getTimestamp(),
                 'todayRoute' => $todayRoute,
