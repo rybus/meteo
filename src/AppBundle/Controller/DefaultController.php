@@ -142,12 +142,28 @@ class DefaultController extends Controller
         $end->setTime(23, 59, 59);
 
         $measures = $measureRepository->getMeasuresBySensorAndRange($sensor, $start, $end);
+        $maxMeasure = $measureRepository->getMaxMeasuresBySensorAndRange($sensor, $start, $end);
+        $minMeasure = $measureRepository->getMinMeasuresBySensorAndRange($sensor, $start, $end);
+
         $normalizedMeasures = [];
         foreach ($measures as $measure) {
+            $markerSize = 0;
+            if ($maxMeasure->getId() === $measure->getId()) {
+                $markerColor = 'rgb(239,75,43)';
+                $markerSize = 7;
+            } elseif ($minMeasure->getId() === $measure->getId()) {
+                $markerColor = 'rgb(32,175,204)';
+                $markerSize = 7;
+            } else {
+                $markerColor = $shader->shade((float)$measure->getValue());
+            }
+
             $normalizedMeasures[] = [
                 'x' => $measure->getDate()->getTimestamp() * 1000,
                 'y' => (float)$measure->getValue(),
-                'lineColor' => $shader->shade((float)$measure->getValue())
+                'lineColor' => $shader->shade((float)$measure->getValue()),
+                'markerColor' => $markerColor,
+                'markerSize' => $markerSize
             ];
         }
 

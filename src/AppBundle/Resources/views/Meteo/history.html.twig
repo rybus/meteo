@@ -31,7 +31,17 @@
                     axisY:{
                         labelFormatter: function ( e ) {
                             return e.value + '°C';
+                        },
+                        stripLines: [
+                        {
+                            value : null,
+                            color: "#007bff",
+                            labelFontColor:  "#007bff",
+                            label: "Moyenne : ",
+                            showOnTop: true,
+                            labelPlacement: "outside"
                         }
+                        ]
                     },
                     toolTip:{
                         contentFormatter: function ( e ) {
@@ -51,6 +61,16 @@
                     }]
                 });
 
+                var sum = 0;
+                var length = chart.options.data[0].dataPoints.length;
+                for( var i = 0; i < length; i++ )
+                    sum += chart.options.data[0].dataPoints[i].y;
+                average = sum / length;
+
+
+                chart.options.axisY.stripLines[0].value = average;
+                chart.options.axisY.stripLines[0].label += average.toPrecision(3) + "°C";
+
                 chart.render();
             }
         }
@@ -60,7 +80,7 @@
 {%  block body %}
 
     <h1>{{ sensor.label }}</h1>
-    <div id="chartContainer" style="height: 370px; width: 100%;"></div>
+    <div id="chartContainer" style="height: 370px; width: 100%; margin-top: 40px;padding-left:-40px;"></div>
 
     <a href="{{  todayRoute}}">aujourd'hui</a> /
     <a href="{{  weekRoute }}">cette semaine</a> /
@@ -78,15 +98,6 @@
     </form>
     <hr />
     <br />
-    <br />
-    <h1>Records sur la période</h1>
-    <small class="text-muted">du {{ start|date('d/m/Y H:i') }} au {{ end|date('d/m/Y H:i') }}</small>
-    <br />
-    <ul>
-        <li>Minimum: <strong><span class="text-primary">{{ min.value }} {{ sensor.unit }}</span></strong> <small class="text-muted">at {{ min.date|date('d/m/Y  H:i') }}</small></li>
-        <li>Maximum: <strong><span class="text-danger">{{ max.value }} {{ sensor.unit }}</span></strong> <small class="text-muted">at  {{ max.date|date('d/m/Y  H:i') }}</small></li>
-        <li>Moyenne: <strong>{{ avg.value_avg|number_format(1) }} {{ sensor.unit }}</strong></li>
-    </ul>
 
     <script>
         $('#see_graph').click(function () {
