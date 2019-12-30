@@ -51,3 +51,7 @@ Aavoid having your WiFi password in plain text
 ## Raspbery links
 
 - https://www.raspberrypi.org/documentation/configuration/wireless/
+
+## Other useful resources and credits
+
+- Temperature Outside icon by https://icons8.com
