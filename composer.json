@@ -1,8 +1,8 @@
 {
-    "name": "symfony/framework-standard-edition",
+    "name": "Weather station with Arduino and RaspberryPi",
     "license": "MIT",
     "type": "project",
-    "description": "The \"Symfony Standard Edition\" distribution",
+    "description": "Web app that displays nice information coming from arduino probes, running on a RaspberryPi",
     "autoload": {
         "psr-4": {
             "AppBundle\\": "src/AppBundle"
