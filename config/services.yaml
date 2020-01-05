@@ -4,6 +4,10 @@
 # Put parameters here that don't need to change on each machine where the app is deployed
 # https://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
 parameters:
+    min_temperature: -15
+    max_temperature: 30
+    cold_color: [32, 175, 204]
+    hot_color: [239, 75, 43]
 
 services:
     # default configuration for services in *this* file
