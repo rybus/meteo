@@ -4,11 +4,7 @@
 
 {% block body %}
     <div class="row">
-        <h1>Le {{ "now"|date("d/m/Y") }}</h1>
-        <hr/>
-        <br />
-        <br />
-        <br />
+
 
         <div class="col-lg-12">
             <h2>Lever et coucher du Soleil à Bellevigny</h2>
@@ -26,8 +22,8 @@
     <br />
         <h2>Sondes</h2>
         <hr />
+        <a href="{{ path('history')}}" class="btn btn-primary">historique</a><br /><br />
     <div class="row">
-
             {% for last_measure in last_measures %}
                 <div class="col-lg-4">
                     <div class="card" style="margin-top:20px;width: 20rem;">
@@ -44,7 +40,6 @@
                                     <img src="https://cdn2.iconfinder.com/data/icons/game-center-mixed-icons/512/temperature.png"
                                          width="25" height="25"/> {{ last_measure.measure.value }}°C
                             </p>
-                            <a href="{{ path('history') }}" class="card-link btn btn-primary">historique</a>
                         </div>
                     </div>
                 </div>

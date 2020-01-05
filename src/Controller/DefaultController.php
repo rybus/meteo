@@ -35,18 +35,9 @@ class DefaultController extends AbstractController
     }
 
     /**
-     * @Route("/history", name="history")
-     *
-     * @return \Symfony\Component\HttpFoundation\Response
-     */
-    public function history()
-    {
-        return $this->historyOnRange(new \DateTime('24 hours ago'), new \DateTime('now'));
-    }
-
-    /**
      * @Route("/history/{start}/{end}", name="history_range")
      * @Route("/history/{start}", name="history_from")
+     * @Route("/history", name="history_recent")
      *
      * @param \DateTime $start
      * @param \DateTime $end
@@ -56,50 +47,27 @@ class DefaultController extends AbstractController
      *
      * @return Response
      */
-    public function historyOnRange(\DateTime $start, \DateTime $end = null)
+    public function history(\DateTime $start = null, \DateTime $end = null)
     {
+        if (null === $start) {
+            $start = new \DateTime('24 hours ago');
+        }
+
         if (null === $end) {
             $end = new \DateTime('now');
         }
+
         $today = new \DateTimeImmutable('now');
-       
-        $todayRoute = $this->generateUrl(
-            'history_from',
-            [
-                'start' => $today->modify('2 days ago')->format('d-m-Y'),
-            ]
-        );
-
-        $weekRoute = $this->generateUrl(
-            'history_from',
-            [
-                'start' => $today->modify('2 weeks ago')->format('d-m-Y'),
-            ]
-        );
-
-        $monthRoute = $this->generateUrl(
-            'history_from',
-            [
-                'start' => $today->modify('2 months ago')->format('d-m-Y'),
-            ]
-        );
-
-        $yearRoute = $this->generateUrl(
-            'history_from',
-            [
-                'start' =>  $today->modify('1 year ago')->format('d-m-Y'),
-            ]
-        );
-
+ 
         return $this->render(
             'history.html.twig',
             [
                 'start' => $start->getTimestamp(),
                 'end' => $end->getTimestamp(),
-                'todayRoute' => $todayRoute,
-                'weekRoute' => $weekRoute,
-                'monthRoute' => $monthRoute,
-                'yearRoute' => $yearRoute
+                'todayRoute' => $this->generateUrl('history_from', ['start' => $today->modify('2 days ago')->format('d-m-Y')]),
+                'weekRoute'  => $this->generateUrl('history_from', ['start' => $today->modify('2 weeks ago')->format('d-m-Y')]),
+                'monthRoute' => $this->generateUrl('history_from', ['start' => $today->modify('2 months ago')->format('d-m-Y')]),
+                'yearRoute'  => $this->generateUrl('history_from', ['start' => $today->modify('1 year ago')->format('d-m-Y')]),
             ]
         );
     }
