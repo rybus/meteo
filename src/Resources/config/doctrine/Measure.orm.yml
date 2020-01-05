@@ -1,0 +1,24 @@
+App\Entity\Measure:
+    type: entity
+    table: null
+    repositoryClass: App\Repository\MeasureRepository
+    id:
+        id:
+            type: integer
+            id: true
+            generator:
+                strategy: AUTO
+    fields:
+        value:
+            type: decimal
+            precision: 5
+            scale: 1
+        date:
+            type: datetime
+    manyToOne:
+        sensor:
+          targetEntity: App\Entity\Sensor
+          joinColumn:
+            name: sensor_id
+            referencedColumnName: id
+lifecycleCallbacks: {  }
