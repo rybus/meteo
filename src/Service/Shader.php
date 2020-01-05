@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Color;
+namespace App\Service;
 
 /**
  * This service allows to compute colors based on min and max colors and given color

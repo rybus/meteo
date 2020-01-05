@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Sensor;
+use App\Service\Shader;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -125,10 +126,9 @@ class DefaultController extends AbstractController
      *
      * @return JsonResponse
      */
-    public function measures(Sensor $sensor, \DateTime $start, \DateTime $end)
+    public function measures(Shader $shader, Sensor $sensor, \DateTime $start, \DateTime $end)
     {
         $measureRepository = $this->getDoctrine()->getRepository('App:Measure');
-        $shader = $this->get('shader');
 
         $start->setTime(0, 0, 0);
         $end->setTime(23, 59, 59);
