@@ -19,15 +19,17 @@ class DefaultController extends AbstractController
     /**
      * @Route("/", name="homepage")
      */
-    public function indexAction(Request $request)
+    public function indexAction(Shader $shader)
     {
         $measureRepository = $this->getDoctrine()->getRepository('App:Measure');
         $sensorRepository = $this->getDoctrine()->getRepository('App:Sensor');
         $lastSensorMeasure = [];
         foreach ($sensorRepository->findBy(['id' => [2, 3, 4]]) as $sensor) {
+            $measure = $measureRepository->getLastMeasureForSensor($sensor);
             $lastSensorMeasure[] = [
-                'measure' => $measureRepository->getLastMeasureForSensor($sensor),
+                'measure' => $measure,
                 'sensor' => $sensor,
+                'color' => $shader->shade($measure->getValue())
             ];
         }
 
@@ -67,9 +69,41 @@ class DefaultController extends AbstractController
                 'todayRoute' => $this->generateUrl('history_from', ['start' => $today->modify('2 days ago')->format('d-m-Y')]),
                 'weekRoute'  => $this->generateUrl('history_from', ['start' => $today->modify('2 weeks ago')->format('d-m-Y')]),
                 'monthRoute' => $this->generateUrl('history_from', ['start' => $today->modify('2 months ago')->format('d-m-Y')]),
-                'yearRoute'  => $this->generateUrl('history_from', ['start' => $today->modify('1 year ago')->format('d-m-Y')]),
+                'yearRoute' => $this->generateUrl('history_from', ['start' => $today->modify('1 year ago')->format('d-m-Y')]),
             ]
         );
+    }
+
+    /**
+     * @Route("/today/{id}", name="today")
+     * 
+     *  @param Sensor $sensor
+     *
+     * @return JsonResponse
+     */
+    public function today(Shader $shader, Sensor $sensor)
+    {
+        $today = new \DateTime('now');
+        $beginingOfToday = clone $today->setTime(0, 0, 0);
+        $endOfToday = clone $today->setTime(23,59,59);
+
+        $measureRepository = $this->getDoctrine()->getRepository('App:Measure');
+
+        $measures = $measureRepository->getMeasuresBySensorAndRange($sensor, $beginingOfToday, $endOfToday);
+        $maxMeasure = $measureRepository->getMaxMeasuresBySensorAndRange($sensor, $beginingOfToday, $endOfToday);
+        $minMeasure = $measureRepository->getMinMeasuresBySensorAndRange($sensor, $beginingOfToday, $endOfToday);
+
+        foreach ($measures as $measure) {
+            $normalizedMeasures[] = $this->normalizeMeasure(
+                $shader,
+                $maxMeasure,
+                $minMeasure,
+                $measure->getValue(),
+                $measure->getDate()->getTimestamp()
+            );
+        }
+
+        return new JsonResponse($normalizedMeasures);
     }
 
     /**

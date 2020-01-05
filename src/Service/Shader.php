@@ -77,9 +77,9 @@ class Shader
     public function getShade($factor)
     {
         return [
-            $factor * ($this->toRGBColor[0] - $this->fromRGBColor[0])+$this->fromRGBColor[0],
-            $factor * ($this->toRGBColor[1] - $this->fromRGBColor[1])+$this->fromRGBColor[1],
-            $factor * ($this->toRGBColor[2] - $this->fromRGBColor[2])+$this->fromRGBColor[2],
+            $factor * ($this->toRGBColor[0] - $this->fromRGBColor[0]) + $this->fromRGBColor[0],
+            $factor * ($this->toRGBColor[1] - $this->fromRGBColor[1]) + $this->fromRGBColor[1],
+            $factor * ($this->toRGBColor[2] - $this->fromRGBColor[2]) + $this->fromRGBColor[2],
         ];
     }
 }

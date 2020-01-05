@@ -3,85 +3,205 @@
 {% block title %}Mesures des sondes{% endblock %}
 
 {% block body %}
-    <div class="row">
-
-
-        <div class="col-lg-12">
-            <h2>Lever et coucher du Soleil à Bellevigny</h2>
-            <hr/>
-            <ul>
-                <li>aube: <span id="civil_twilight_begin"></span></li>
-                <li>lever: <span id="sunrise"></span></li>
-                <li>midi solaire: <span id="solar_noon"></span></li>
-                <li>coucher: <span id="sunset"></span></li>
-                <li>crépuscule: <span id="civil_twilight_end"></span></li>
-                <li>durée du jour: <span id="day_length"></span></li>
-            </ul>
-        </div>
-    </div>
-    <br />
-        <h2>Sondes</h2>
-        <hr />
-        <a href="{{ path('history')}}" class="btn btn-primary">historique</a><br /><br />
+        <span id="sunrise" style="display:none"></span>
+        <span id="sunset" style="display:none"></span>
+        <span id="solar_noon" style="display:none"></span>
     <div class="row">
             {% for last_measure in last_measures %}
                 <div class="col-lg-4">
-                    <div class="card" style="margin-top:20px;width: 20rem;">
+                    <div class="card" style="margin-top:20px;width: 20rem;border-left: 2px solid black">
                         <div class="card-body">
-                            <h4 class="card-title">{{ last_measure.sensor.name }}</h4>
-                            <small class="text-muted">
+                            <h4 class="card-title">{{ last_measure.sensor.name }} <small class="text-muted">
                                 {% if last_measure.measure.date|diff == 0 %}
                                     À l'instant
                                 {% else %}
-                                    Il y a {{ last_measure.measure.date|diff }} minutes
+                                    il y a {{ last_measure.measure.date|diff }} minutes
                                 {% endif %}
-                            </small>
+                            </small></h4>
+                           
                             <p class="card-text">
                                     <img src="https://cdn2.iconfinder.com/data/icons/game-center-mixed-icons/512/temperature.png"
-                                         width="25" height="25"/> {{ last_measure.measure.value }}°C
+                                         width="25" height="25"/> <strong style="color:{{last_measure.color}}">{{ last_measure.measure.value }}</strong>°C
                             </p>
                         </div>
                     </div>
                 </div>
             {% endfor %}
-        </div>
+    </div>
+    <div class="row">
+        <div id="chartContainer" style="height: 370px; width: 100%; margin-top: 40px;padding-left:-40px;"></div>
+        
+    </div>
+    <br />
+    <div class="row">
+        <a href="{{ path('history_recent')}}" class="btn btn-primary">Afficher tout l'historique</a>
+    </div>
 {% endblock %}
 
 {% block headjavascripts %}
-    <script>   $(document).ready(function () {
-
-            function formatDate(iso8601date) {
-                var d = new Date(iso8601date);
-                var hours = d.getHours();
-                var minutes = "0" + d.getMinutes();
-
-                return hours + ':' + minutes.substr(-2);
-            }
-
+    <script>$(document).ready(function () {
             var sunriseAPI = "https://api.sunrise-sunset.org/json?lat=46.7953668&lng=-1.4109982,16.5&formatted=0&callback=foo";
-            $.ajax({
-                url: sunriseAPI,
-                dataType: 'jsonp',
-                success: function (data) {
-                    var informations = data.results;
-                    console.log(informations);
+    
+            $.when(
+                $.ajax({
+                    url: sunriseAPI,
+                    dataType: 'jsonp',
+                    success: function (data) {
+                        var informations = data.results;
 
-                    $('#sunrise').html(formatDate((informations.sunrise)));
-                    $('#sunset').html(formatDate((informations.sunset)));
-                    $('#civil_twilight_begin').html(formatDate((informations.civil_twilight_begin)));
-                    $('#civil_twilight_end').html(formatDate((informations.civil_twilight_end)));
-                    $('#solar_noon').html(formatDate((informations.solar_noon)));
-
-                    var sec_length = parseInt(informations.day_length);
-                    var hour_length = Math.floor(sec_length / 3600);
-                    sec_length -= hour_length * 3600;
-                    var min_length = Math.floor(sec_length / 60);
-
-                    $('#day_length').html(hour_length + ' heures et ' + min_length + ' minutes');
-                }
+                        $('#sunrise').html(informations.sunrise);
+                        $('#sunset').html(informations.sunset);
+                        $('#solar_noon').html(informations.solar_noon);
+                    }
+                }),
+                $.getJSON("/today/2", function(data) {
+                    dp_a = data;
+                }),
+                $.getJSON("/today/3", function(data) {
+                    dp_b = data;
+                }),
+                $.getJSON("/today/4", function(data) {
+                    dp_c = data;
+                })
+            ).then(function() {
+                renderGraph(dp_a, dp_b);
             });
 
+            function getTime(timestamp) {
+                const event = new Date(timestamp);
 
+                return event.getHours() + ':' + event.getMinutes();
+            }
+
+            function renderGraph(dp_a, dp_b) {
+                console.log();
+                var chart = new CanvasJS.Chart("chartContainer", {
+                    theme: "light2", // "light1", "light2", "dark1", "dark2"
+                    animationEnabled: true,
+                    axisX:{
+                        valueFormatString: "HH'h'",
+                        stripLines: [
+                          {
+                            value : new Date($('#solar_noon').html()),
+                            color: "#009999",
+                            labelFontColor:  "#009999",
+                            label: "Midi solaire",
+                            labelPlacement: "inside",
+                            labelAlign: "near",
+                            opacity: .8
+                        },
+                        {
+                            value : new Date($('#sunrise').html()),
+                            color: "#009999",
+                            labelFontColor:  "#009999",
+                            label: "Lever du soleil",
+                            showOnTop: true,
+                            labelPlacement: "inside",
+                            labelAlign: "near",
+                            opacity: .8
+                        },
+                        {
+                            value : new Date($('#sunset').html()),
+                            color: "#009999",
+                            labelFontColor:  "#009999",
+                            label: "Coucher du soleil",
+                            showOnTop: true,
+                            labelPlacement: "inside",
+                            labelAlign: "near",
+                            opacity: .8
+                        },
+            
+                        ]
+                    },
+                    zoomEnabled: true,
+                    axisY:{
+                        labelFormatter: function ( e ) {
+                            return e.value + '°C';
+                        },
+                        stripLines: [
+                        {
+                            value : null,
+                            color: "#009999",
+                            labelFontColor:  "#009999",
+                            label: "Moyenne serre ",
+                            showOnTop: true,
+                            labelPlacement: "outside",
+                            lineDashType: "shortDot",
+                            opacity: .8
+                        },
+                        {
+                            value : null,
+                            color: "#9966ff",
+                            labelFontColor:  "#9966ff",
+                            label: "Moyenne extérieur ",
+                            showOnTop: true,
+                            lineDashType: "shortDot",
+                            labelPlacement: "outside"
+                        },
+                        {
+                            value : null,
+                            color: "#000099",
+                            labelFontColor:  "#000099",
+                            label: "Moyenne intérieur ",
+                            showOnTop: true,
+                            lineDashType: "shortDot",
+                            labelPlacement: "outside"
+                        }
+                        ]
+                    },
+                    toolTip:{
+                        contentFormatter: function ( e ) {
+                            return e.entries[0].dataPoint.label;
+                        }
+                    },
+                    data: [{
+                        type: "line",
+                        xValueType: "dateTime",
+                        dataPoints: dp_a,
+                        name: "Temperature serre",
+                        showInLegend: true,
+                        nullDataLineDashType:  "dot",
+                    },
+                    {
+                        type: "line",
+                        xValueType: "dateTime",
+                        dataPoints: dp_b,
+                        name: "Temperature ext.",
+                        showInLegend: true,
+                        nullDataLineDashType:  "dot",
+                    },
+                    {
+                        type: "line",
+                        xValueType: "dateTime",
+                        dataPoints: dp_c,
+                        name: "Temperature int.",
+                        showInLegend: true,
+                        nullDataLineDashType:  "dot",
+                    }]
+                });
+
+                function mean(index) {
+                    var sum = 0;
+                    var length = chart.options.data[index].dataPoints.length;
+                    for( var i = 0; i < length; i++ )
+                        sum += chart.options.data[index].dataPoints[i].y;
+
+                    return sum / length;
+                }
+            
+                for( var index = 0; index < 3; index++ ) {
+                    average = mean(index);
+                    chart.options.axisY.stripLines[index].value = average;
+                    chart.options.axisY.stripLines[index].label += average.toPrecision(3) + "°C";
+                }
+
+                chart.render();
+            }
         });
     </script>
+{% endblock %}
+
+{% block javascripts %}
+    {{  parent() }}
+    <script src="{{ asset('js/canvasjs.min.js') }}"></script>
 {% endblock %}
