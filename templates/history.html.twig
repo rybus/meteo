@@ -45,13 +45,7 @@
                     },
                     toolTip:{
                         contentFormatter: function ( e ) {
-                            // Hours part from the timestamp
-                            var measure_date = new Date(e.entries[0].dataPoint.x);
-                            var hours = measure_date.getHours();
-                            var minutes = "0" + measure_date.getMinutes();
-                            var formattedTime = measure_date.getDate() + '/' + (measure_date.getMonth()+1) + '/ ' + measure_date.getFullYear() + ' à ' + hours + ':' + minutes.substr(-2);
-
-                            return e.entries[0].dataPoint.y + '{{ sensor.unit }} le ' + formattedTime
+                            return e.entries[0].dataPoint.label;
                         }
                     },
                     data: [{
@@ -82,10 +76,10 @@
     <h1>{{ sensor.label }}</h1>
     <div id="chartContainer" style="height: 370px; width: 100%; margin-top: 40px;padding-left:-40px;"></div>
 
-    <a href="{{  todayRoute}}">aujourd'hui</a> /
-    <a href="{{  weekRoute }}">cette semaine</a> /
-    <a href="{{  monthRoute }}">ce mois-ci</a> /
-    <a href="{{  yearRoute }}">cette année</a>
+    <a href="{{  todayRoute}}">dernières 48 heures</a> /
+    <a href="{{  weekRoute }}">depuis 2 semaines</a> /
+    <a href="{{  monthRoute }}">depuis 2 mois</a> /
+    <a href="{{  yearRoute }}">depuis un an</a>
 <hr />
     <form class="form-inline">
         <div class="form-group mx-sm-3">

@@ -100,5 +100,12 @@ class Measure
     {
         return $this->date;
     }
-}
 
+    /** 
+     * Returns timestamp in milliseconds
+     */
+    public function getTimestampInMs()
+    {
+        return $this->getDate()->getTimestamp() * 1000;
+    }
+}

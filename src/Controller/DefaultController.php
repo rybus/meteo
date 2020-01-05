@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Sensor;
+use App\Entity\Measure;
 use App\Service\Shader;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -13,6 +14,8 @@ use Symfony\Component\HttpFoundation\Response;
 
 class DefaultController extends AbstractController
 {
+    const ONE_HOUR = 3600;
+    
     /**
      * @Route("/", name="homepage")
      */
@@ -44,6 +47,7 @@ class DefaultController extends AbstractController
 
     /**
      * @Route("/history/{id}/{start}/{end}", name="history_range")
+     * @Route("/history/{id}/{start}", name="history_from")
      *
      * @param Sensor $sensor
      * @param \DateTime $start
@@ -54,49 +58,42 @@ class DefaultController extends AbstractController
      *
      * @return Response
      */
-    public function historyOnRange(Sensor $sensor, \DateTime $start, \DateTime $end)
+    public function historyOnRange(Sensor $sensor, \DateTime $start, \DateTime $end = null)
     {
-        $start->setTime(0, 0, 0);
-        $end->setTime(23, 59, 59);
-
-        $today = new \DateTime('now');
+        if (null === $end) {
+            $end = new \DateTime('now');
+        }
+        $today = new \DateTimeImmutable('now');
+       
         $todayRoute = $this->generateUrl(
-            'history_range',
+            'history_from',
             [
                 'id' => $sensor->getId(),
-                'start' => $today->format('d-m-Y'),
-                'end' => $today->format('d-m-Y')
+                'start' => $today->modify('2 days ago')->format('d-m-Y'),
             ]
         );
 
-        $tomorrow = new \DateTime('tomorrow');
-        $weekStart = $tomorrow->modify('last monday');
-        $yesterday = new \DateTime('yesterday');
-        $weekEnd = $yesterday->modify('next sunday');
         $weekRoute = $this->generateUrl(
-            'history_range',
+            'history_from',
             [
                 'id' => $sensor->getId(),
-                'start' => $weekStart->format('d-m-Y'),
-                'end' => $weekEnd->format('d-m-Y')
+                'start' => $today->modify('2 weeks ago')->format('d-m-Y'),
             ]
         );
 
         $monthRoute = $this->generateUrl(
-            'history_range',
+            'history_from',
             [
                 'id' => $sensor->getId(),
-                'start' => '1-' . date('n') . '-' . date('Y'),
-                'end' => date('t') . '-' . date('n') . '-' . date('Y')
+                'start' => $today->modify('2 months ago')->format('d-m-Y'),
             ]
         );
 
         $yearRoute = $this->generateUrl(
-            'history_range',
+            'history_from',
             [
                 'id' => $sensor->getId(),
-                'start' => '1-1-' . date('Y'),
-                'end' => '31-12-' . date('Y')
+                'start' =>  $today->modify('1 year ago')->format('d-m-Y'),
             ]
         );
 
@@ -116,6 +113,7 @@ class DefaultController extends AbstractController
 
     /**
      * @Route("/history/measures/{id}/{start}/{end}", name="measures_range")
+     * @Route("/history/measures/{id}/{start}", name="measures_from")
      *
      * @param Sensor $sensor
      * @param \DateTime $start
@@ -126,39 +124,82 @@ class DefaultController extends AbstractController
      *
      * @return JsonResponse
      */
-    public function measures(Shader $shader, Sensor $sensor, \DateTime $start, \DateTime $end)
+    public function measures(Shader $shader, Sensor $sensor, \DateTime $start, \DateTime $end = null)
     {
-        $measureRepository = $this->getDoctrine()->getRepository('App:Measure');
+        $today = new \DateTimeImmutable('now');
+        $start->setTime($today->format('H'), $today->format('i'));
 
-        $start->setTime(0, 0, 0);
-        $end->setTime(23, 59, 59);
+        if (null === $end) {
+            $end = new \DateTime('now');
+        }
+        $end->setTime($today->format('H'), $today->format('i'));
+
+        $measureRepository = $this->getDoctrine()->getRepository('App:Measure');
 
         $measures = $measureRepository->getMeasuresBySensorAndRange($sensor, $start, $end);
         $maxMeasure = $measureRepository->getMaxMeasuresBySensorAndRange($sensor, $start, $end);
         $minMeasure = $measureRepository->getMinMeasuresBySensorAndRange($sensor, $start, $end);
 
-        $normalizedMeasures = [];
-        foreach ($measures as $measure) {
-            $markerSize = 0;
-            if ($maxMeasure->getId() === $measure->getId()) {
-                $markerColor = 'rgb(239,75,43)';
-                $markerSize = 7;
-            } elseif ($minMeasure->getId() === $measure->getId()) {
-                $markerColor = 'rgb(32,175,204)';
-                $markerSize = 7;
-            } else {
-                $markerColor = $shader->shade((float)$measure->getValue());
-            }
+        $windowInSeconds = $this->getMeasureWindow($start, $end);
 
-            $normalizedMeasures[] = [
-                'x' => $measure->getDate()->getTimestamp() * 1000,
-                'y' => (float)$measure->getValue(),
-                'lineColor' => $shader->shade((float)$measure->getValue()),
-                'markerColor' => $markerColor,
-                'markerSize' => $markerSize
-            ];
+        $normalizedMeasures = [];
+        $means = [];
+
+        foreach ($measures as $measure) {
+            $shift = $measure->getDate()->getTimestamp() % $windowInSeconds;
+            $windowStart = $measure->getDate()->getTimestamp() - $shift;
+            $meanTimestamp = $windowStart + ($windowInSeconds/2);
+
+            if (!isset($means[$meanTimestamp])) {
+                $means[$meanTimestamp] = ['value' => $measure->getValue(), 'count' => 1];
+            } elseif ($means[$meanTimestamp]['count'] > 0) {
+                $means[$meanTimestamp]['value'] = ($means[$meanTimestamp]['count'] * $means[$meanTimestamp]['value'] + $measure->getValue())/(++$means[$meanTimestamp]['count']);
+            }
+        }
+
+        foreach ($means as $timestamp => $mean) {
+            $normalizedMeasures[] = $this->normalizeMeasure(
+                $shader,
+                $maxMeasure,
+                $minMeasure,
+                $mean['value'],
+                $timestamp
+            );             
         }
 
         return new JsonResponse($normalizedMeasures);
+    }
+
+    private function normalizeMeasure(Shader $shader, Measure $maxMeasure, Measure $minMeasure, float $measure, int $x)
+    {
+        $markerSize = 0;
+        $markerColor = $shader->shade($measure);
+        if ($maxMeasure->getValue() == $measure) {
+            $markerColor = $shader->getWarmestColor();
+            $markerSize = 7;
+        } elseif ($minMeasure->getValue() == $measure) {
+            $markerColor = $shader->getCoolestColor();
+            $markerSize = 7;
+        } 
+
+        return [
+            'x' => $x*1000,
+            'y' => (float) number_format($measure, 1, '.', ''),
+            'label' => 'foo',
+            'lineColor' => $shader->shade($measure),
+            'markerColor' => $markerColor,
+            'markerSize' => $markerSize
+        ];
+    }
+
+    private function getMeasureWindow(\DateTime $start, \DateTime $end)
+    {
+        $interval = $start->diff($end);
+        
+        if ($interval->days > 30*3) {
+            return self::ONE_HOUR*24;
+        }
+
+        return self::ONE_HOUR/5;
     }
 }

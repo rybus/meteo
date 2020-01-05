@@ -48,6 +48,20 @@ class Shader
         return sprintf("#%02x%02x%02x", $color[0], $color[1], $color[2]);
     }
 
+    public function getWarmestColor()
+    {
+        $color = $this->getShade($this->getFactor($this->maxTemperature));
+
+        return sprintf("#%02x%02x%02x", $color[0], $color[1], $color[2]);
+    }
+
+    public function getCoolestColor()
+    {
+        $color = $this->getShade($this->getFactor($this->minTemperature));
+
+        return sprintf("#%02x%02x%02x", $color[0], $color[1], $color[2]);
+    }
+
     /**
      * Gives a percentage between minimum supported temperature and max.
      *
