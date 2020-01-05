@@ -3,6 +3,8 @@
 ## Pre requisites
 
 - `pip install MySQL-python`
+- `mysql-server` 8.0
+- `php` 7.3 (pdo-mysql, xml, cli)
 - `sudo apt-get install libmariadbclient-dev`
 - Install [Composer](https://getcomposer.org/)
 
@@ -10,6 +12,15 @@
 
 - Clone this repository to your home folder
 - `composer install`
+
+## MySQL
+
+```sql
+CREATE DATABASE meteo;
+CREATE USER meteo@localhost IDENTIFIED WITH mysql_native_password BY 'a_secret_password';
+GRANT ALL PRIVILEGES ON meteo.* TO meteo@localhost;
+EXIT
+```
 
 ## Crontab for WiFi auto re-connection
 
