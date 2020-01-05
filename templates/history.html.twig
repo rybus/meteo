@@ -1,0 +1,118 @@
+{% extends 'base.html.twig' %}
+
+{%  block title %}{{  sensor.name }}{%  endblock %}
+
+{% block headjavascripts %}
+    <script>
+        $(document).ready(function(){
+            var now_date = new Date({{ start }}*1000);
+            var now_str = now_date.getDate() + '-' + (now_date.getMonth()+1) + '-' + now_date.getFullYear();
+
+            var end_date = new Date({{  end }}*1000);
+            var end_str = end_date.getDate() + '-' + (end_date.getMonth()+1) + '-' + end_date.getFullYear();
+            loadRange(now_str, end_str)
+        });
+
+        function loadRange(start, end) {
+            $.getJSON({
+                url: "/history/measures/{{ sensor.id }}/"+start+"/"+end,
+                dataType: 'json',
+                success: renderGraph
+            });
+
+            function renderGraph(dp) {
+                var chart = new CanvasJS.Chart("chartContainer", {
+                    theme: "light2", // "light1", "light2", "dark1", "dark2"
+                    animationEnabled: true,
+                    axisX:{
+                        valueFormatString: "DD/MM/YY HH:mm"
+                    },
+                    zoomEnabled: true,
+                    axisY:{
+                        labelFormatter: function ( e ) {
+                            return e.value + '°C';
+                        },
+                        stripLines: [
+                        {
+                            value : null,
+                            color: "#007bff",
+                            labelFontColor:  "#007bff",
+                            label: "Moyenne : ",
+                            showOnTop: true,
+                            labelPlacement: "outside"
+                        }
+                        ]
+                    },
+                    toolTip:{
+                        contentFormatter: function ( e ) {
+                            // Hours part from the timestamp
+                            var measure_date = new Date(e.entries[0].dataPoint.x);
+                            var hours = measure_date.getHours();
+                            var minutes = "0" + measure_date.getMinutes();
+                            var formattedTime = measure_date.getDate() + '/' + (measure_date.getMonth()+1) + '/ ' + measure_date.getFullYear() + ' à ' + hours + ':' + minutes.substr(-2);
+
+                            return e.entries[0].dataPoint.y + '{{ sensor.unit }} le ' + formattedTime
+                        }
+                    },
+                    data: [{
+                        type: "spline",
+                        xValueType: "dateTime",
+                        dataPoints: dp
+                    }]
+                });
+
+                var sum = 0;
+                var length = chart.options.data[0].dataPoints.length;
+                for( var i = 0; i < length; i++ )
+                    sum += chart.options.data[0].dataPoints[i].y;
+                average = sum / length;
+
+
+                chart.options.axisY.stripLines[0].value = average;
+                chart.options.axisY.stripLines[0].label += average.toPrecision(3) + "°C";
+
+                chart.render();
+            }
+        }
+    </script>
+{%  endblock %}
+
+{%  block body %}
+
+    <h1>{{ sensor.label }}</h1>
+    <div id="chartContainer" style="height: 370px; width: 100%; margin-top: 40px;padding-left:-40px;"></div>
+
+    <a href="{{  todayRoute}}">aujourd'hui</a> /
+    <a href="{{  weekRoute }}">cette semaine</a> /
+    <a href="{{  monthRoute }}">ce mois-ci</a> /
+    <a href="{{  yearRoute }}">cette année</a>
+<hr />
+    <form class="form-inline">
+        <div class="form-group mx-sm-3">
+            <label for="startDate">du&nbsp;</label>
+            <input type="text" class="form-control" id="startDate"  value="{{ start|date('d-m-Y') }}" >
+            <label for="endDate">&nbsp;au&nbsp;</label>
+            <input type="text" class="form-control" id="endDate" value="{{ end|date('d-m-Y') }}">
+        </div>
+        <a id="see_graph" class="btn btn-outline-primary" href="#">voir</a>
+    </form>
+    <hr />
+    <br />
+
+    <script>
+        $('#see_graph').click(function () {
+            var date_start = $('#startDate').val();
+            var date_end = $('#endDate').val();
+
+            url = '/history/{{ sensor.id }}/' + date_start + '/' +date_end;
+
+            $(this).attr("href", url);
+        });
+    </script>
+
+{% endblock %}
+
+{% block javascripts %}
+    {{  parent() }}
+    <script src="{{ asset('js/canvasjs.min.js') }}"></script>
+{% endblock %}

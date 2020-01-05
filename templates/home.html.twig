@@ -1,0 +1,98 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mesures des sondes{% endblock %}
+
+{% block body %}
+    <div class="row">
+        <h1>Le {{ "now"|date("d/m/Y") }}</h1>
+        <hr/>
+        <br />
+        <br />
+        <br />
+
+        <div class="col-lg-12">
+            <h2>Lever et coucher du Soleil à Bellevigny</h2>
+            <hr/>
+            <ul>
+                <li>aube: <span id="civil_twilight_begin"></span></li>
+                <li>lever: <span id="sunrise"></span></li>
+                <li>midi solaire: <span id="solar_noon"></span></li>
+                <li>coucher: <span id="sunset"></span></li>
+                <li>crépuscule: <span id="civil_twilight_end"></span></li>
+                <li>durée du jour: <span id="day_length"></span></li>
+            </ul>
+        </div>
+    </div>
+    <br />
+        <h2>Sondes</h2>
+        <hr />
+    <div class="row">
+
+            {% for last_measure in last_measures %}
+                <div class="col-lg-4">
+                    <div class="card" style="margin-top:20px;width: 20rem;">
+                        <div class="card-body">
+                            <h4 class="card-title">{{ last_measure.sensor.name }}</h4>
+                            <small class="text-muted">
+                                {% if last_measure.measure.date|diff == 0 %}
+                                    À l'instant
+                                {% else %}
+                                    Il y a {{ last_measure.measure.date|diff }} minutes
+                                {% endif %}
+                            </small>
+                            <p class="card-text">
+                                {% if last_measure.sensor.supportedMeasure == constant('App\\Entity\\Sensor::HUMIDITY') %}
+                                    <img width="25" height="25"
+                                         src="https://images.duckduckgo.com/iu/?u=https%3A%2F%2Fcdn4.iconfinder.com%2Fdata%2Ficons%2Ffinite-misc%2F16%2Fwater-512.png&f=1"/>{{ last_measure.measure.value }} %
+                                {% else %}
+                                    <img src="https://cdn2.iconfinder.com/data/icons/game-center-mixed-icons/512/temperature.png"
+                                         width="25" height="25"/> {{ last_measure.measure.value }}°C
+                                {% endif %}
+                            </p>
+                            <a href="{{ path('history', {'id': last_measure.sensor.id}) }}"
+                               class="card-link btn btn-primary">historique</a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+{% endblock %}
+
+{% block headjavascripts %}
+    <script>   $(document).ready(function () {
+
+            function formatDate(iso8601date) {
+                var d = new Date(iso8601date);
+                var hours = d.getHours();
+                var minutes = "0" + d.getMinutes();
+
+                return hours + ':' + minutes.substr(-2);
+            }
+
+            var sunriseAPI = "https://api.sunrise-sunset.org/json?lat=46.7953668&lng=-1.4109982,16.5&formatted=0&callback=foo";
+            $.ajax({
+                url: sunriseAPI,
+                dataType: 'jsonp',
+                success: function (data) {
+                    var informations = data.results;
+                    console.log(informations);
+
+                    $('#sunrise').html(formatDate((informations.sunrise)));
+                    $('#sunset').html(formatDate((informations.sunset)));
+                    $('#civil_twilight_begin').html(formatDate((informations.civil_twilight_begin)));
+                    $('#civil_twilight_end').html(formatDate((informations.civil_twilight_end)));
+                    $('#solar_noon').html(formatDate((informations.solar_noon)));
+
+                    var sec_length = parseInt(informations.day_length);
+                    var hour_length = Math.floor(sec_length / 3600);
+                    sec_length -= hour_length * 3600;
+                    var min_length = Math.floor(sec_length / 60);
+
+                    $('#day_length').html(hour_length + ' heures et ' + min_length + ' minutes');
+                }
+            });
+
+
+        });
+    </script>
+{% endblock %}
