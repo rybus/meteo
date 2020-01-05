@@ -27,7 +27,7 @@ class DefaultController extends Controller
             ];
         }
 
-        return $this->render('App:Meteo:home.html.twig', ['last_measures' => $lastSensorMeasure]);
+        return $this->render('@App/Meteo/home.html.twig', ['last_measures' => $lastSensorMeasure]);
     }
 
     /**
