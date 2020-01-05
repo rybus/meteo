@@ -1,5 +1,7 @@
 # Meteo on RaspberryPi 3
 
+![Homepage](public/dashboard.png)
+
 ## Pre requisites
 
 - `pip install MySQL-python`
