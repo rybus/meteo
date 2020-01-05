@@ -35,21 +35,19 @@ class DefaultController extends AbstractController
     }
 
     /**
-     * @Route("/history/{id}", name="history")
-     * @param Sensor $sensor
+     * @Route("/history", name="history")
      *
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function history(Sensor $sensor)
+    public function history()
     {
-        return $this->historyOnRange($sensor, new \DateTime('now'), new \DateTime('now'));
+        return $this->historyOnRange(new \DateTime('24 hours ago'), new \DateTime('now'));
     }
 
     /**
-     * @Route("/history/{id}/{start}/{end}", name="history_range")
-     * @Route("/history/{id}/{start}", name="history_from")
+     * @Route("/history/{start}/{end}", name="history_range")
+     * @Route("/history/{start}", name="history_from")
      *
-     * @param Sensor $sensor
      * @param \DateTime $start
      * @param \DateTime $end
      *
@@ -58,7 +56,7 @@ class DefaultController extends AbstractController
      *
      * @return Response
      */
-    public function historyOnRange(Sensor $sensor, \DateTime $start, \DateTime $end = null)
+    public function historyOnRange(\DateTime $start, \DateTime $end = null)
     {
         if (null === $end) {
             $end = new \DateTime('now');
@@ -68,7 +66,6 @@ class DefaultController extends AbstractController
         $todayRoute = $this->generateUrl(
             'history_from',
             [
-                'id' => $sensor->getId(),
                 'start' => $today->modify('2 days ago')->format('d-m-Y'),
             ]
         );
@@ -76,7 +73,6 @@ class DefaultController extends AbstractController
         $weekRoute = $this->generateUrl(
             'history_from',
             [
-                'id' => $sensor->getId(),
                 'start' => $today->modify('2 weeks ago')->format('d-m-Y'),
             ]
         );
@@ -84,7 +80,6 @@ class DefaultController extends AbstractController
         $monthRoute = $this->generateUrl(
             'history_from',
             [
-                'id' => $sensor->getId(),
                 'start' => $today->modify('2 months ago')->format('d-m-Y'),
             ]
         );
@@ -92,7 +87,6 @@ class DefaultController extends AbstractController
         $yearRoute = $this->generateUrl(
             'history_from',
             [
-                'id' => $sensor->getId(),
                 'start' =>  $today->modify('1 year ago')->format('d-m-Y'),
             ]
         );
@@ -100,7 +94,6 @@ class DefaultController extends AbstractController
         return $this->render(
             'history.html.twig',
             [
-                'sensor' => $sensor,
                 'start' => $start->getTimestamp(),
                 'end' => $end->getTimestamp(),
                 'todayRoute' => $todayRoute,
@@ -176,16 +169,16 @@ class DefaultController extends AbstractController
         $markerColor = $shader->shade($measure);
         if ($maxMeasure->getValue() == $measure) {
             $markerColor = $shader->getWarmestColor();
-            $markerSize = 7;
+            $markerSize = 4;
         } elseif ($minMeasure->getValue() == $measure) {
             $markerColor = $shader->getCoolestColor();
-            $markerSize = 7;
+            $markerSize = 4;
         } 
 
         return [
             'x' => $x*1000,
             'y' => (float) number_format($measure, 1, '.', ''),
-            'label' => 'foo',
+            'label' => (float) number_format($measure, 1, '.', '') . '°C à ' . date('d/m/Y H:i', $x),
             'lineColor' => $shader->shade($measure),
             'markerColor' => $markerColor,
             'markerSize' => $markerSize

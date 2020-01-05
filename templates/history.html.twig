@@ -1,6 +1,6 @@
 {% extends 'base.html.twig' %}
 
-{%  block title %}{{  sensor.name }}{%  endblock %}
+{%  block title %}Historique{%  endblock %}
 
 {% block headjavascripts %}
     <script>
@@ -10,17 +10,26 @@
 
             var end_date = new Date({{  end }}*1000);
             var end_str = end_date.getDate() + '-' + (end_date.getMonth()+1) + '-' + end_date.getFullYear();
-            loadRange(now_str, end_str)
+            loadRange(now_str, end_str);
         });
 
-        function loadRange(start, end) {
-            $.getJSON({
-                url: "/history/measures/{{ sensor.id }}/"+start+"/"+end,
-                dataType: 'json',
-                success: renderGraph
+
+        function loadRange(start, end, id) {
+            $.when(
+                $.getJSON("/history/measures/2/"+start+"/"+end, function(data) {
+                    dp_a = data;
+                }),
+                $.getJSON("/history/measures/3/"+start+"/"+end, function(data) {
+                    dp_b = data;
+                }),
+                $.getJSON("/history/measures/4/"+start+"/"+end, function(data) {
+                    dp_c = data;
+                })
+            ).then(function() {
+                renderGraph(dp_a, dp_b);
             });
 
-            function renderGraph(dp) {
+            function renderGraph(dp_a, dp_b) {
                 var chart = new CanvasJS.Chart("chartContainer", {
                     theme: "light2", // "light1", "light2", "dark1", "dark2"
                     animationEnabled: true,
@@ -49,9 +58,31 @@
                         }
                     },
                     data: [{
-                        type: "spline",
+                        type: "line",
                         xValueType: "dateTime",
-                        dataPoints: dp
+                        dataPoints: dp_a,
+                        name: "Temperature serre",
+                        lineDashDot: "shortDashDot",
+                        showInLegend: true,
+                        nullDataLineDashType:  "dot",
+                    },
+                    {
+                        type: "line",
+                        xValueType: "dateTime",
+                        dataPoints: dp_b,
+                        name: "Temperature ex.",
+                        lineDashType: "dash",
+                        showInLegend: true,
+                        nullDataLineDashType:  "dot",
+                    },
+                    {
+                        type: "line",
+                        xValueType: "dateTime",
+                        dataPoints: dp_c,
+                        name: "Temperature int.",
+                        lineDashType: "longDashDot",
+                        showInLegend: true,
+                        nullDataLineDashType:  "dot",
                     }]
                 });
 
@@ -73,7 +104,7 @@
 
 {%  block body %}
 
-    <h1>{{ sensor.label }}</h1>
+    <h1>Historique</h1>
     <div id="chartContainer" style="height: 370px; width: 100%; margin-top: 40px;padding-left:-40px;"></div>
 
     <a href="{{  todayRoute}}">dernières 48 heures</a> /
@@ -98,7 +129,7 @@
             var date_start = $('#startDate').val();
             var date_end = $('#endDate').val();
 
-            url = '/history/{{ sensor.id }}/' + date_start + '/' +date_end;
+            url = '/history/' + date_start + '/' +date_end;
 
             $(this).attr("href", url);
         });

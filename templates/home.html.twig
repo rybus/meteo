@@ -41,16 +41,10 @@
                                 {% endif %}
                             </small>
                             <p class="card-text">
-                                {% if last_measure.sensor.supportedMeasure == constant('App\\Entity\\Sensor::HUMIDITY') %}
-                                    <img width="25" height="25"
-                                         src="https://images.duckduckgo.com/iu/?u=https%3A%2F%2Fcdn4.iconfinder.com%2Fdata%2Ficons%2Ffinite-misc%2F16%2Fwater-512.png&f=1"/>{{ last_measure.measure.value }} %
-                                {% else %}
                                     <img src="https://cdn2.iconfinder.com/data/icons/game-center-mixed-icons/512/temperature.png"
                                          width="25" height="25"/> {{ last_measure.measure.value }}°C
-                                {% endif %}
                             </p>
-                            <a href="{{ path('history', {'id': last_measure.sensor.id}) }}"
-                               class="card-link btn btn-primary">historique</a>
+                            <a href="{{ path('history') }}" class="card-link btn btn-primary">historique</a>
                         </div>
                     </div>
                 </div>
