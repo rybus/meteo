@@ -171,10 +171,10 @@ class DefaultController extends AbstractController
         $markerColor = $shader->shade($measure);
         if ($maxMeasure->getValue() == $measure) {
             $markerColor = $shader->getWarmestColor();
-            $markerSize = 4;
+            $markerSize = 0;
         } elseif ($minMeasure->getValue() == $measure) {
             $markerColor = $shader->getCoolestColor();
-            $markerSize = 4;
+            $markerSize = 0;
         } 
 
         return [

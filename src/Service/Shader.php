@@ -3,7 +3,7 @@
 namespace App\Service;
 
 /**
- * This service allows to compute colors based on min and max colors and given color
+ * This service allows to compute colors shades based on min and max colors and given color
  *
  * @author Remy Betus <remy@betus.fr>
  */
@@ -15,25 +15,24 @@ class Shader
     /** @var float */
     protected $maxTemperature;
 
-    /** @var array r g b */
-    protected $fromRGBColor;
+    /** @var int degree on the color wheel from 0 to 360. 0 is red, 120 is green, 240 is blue.*/
+    protected $fromHueColor;
 
-    /** @var array r g b */
-    protected $toRGBColor;
+    /** @var int degree on the color wheel from 0 to 360. 0 is red, 120 is green, 240 is blue. */
+    protected $toHueColor;
 
     /**
-     * Shade constructor.
-     * @param $minTemperature
-     * @param $maxTemperature
-     * @param $fromRGBColor
-     * @param $toRGBColor
+     * @param float $minTemperature
+     * @param float $maxTemperature
+     * @param int   $fromHueColor
+     * @param int   $toHueColor
      */
-    public function __construct($minTemperature, $maxTemperature, array $fromRGBColor, array $toRGBColor)
+    public function __construct(float $minTemperature, float $maxTemperature, int $fromHueColor, int $toHueColor)
     {
         $this->minTemperature = $minTemperature;
         $this->maxTemperature = $maxTemperature;
-        $this->fromRGBColor = $fromRGBColor;
-        $this->toRGBColor = $toRGBColor;
+        $this->fromHueColor = $fromHueColor;
+        $this->toHueColor = $toHueColor;
     }
 
     /**
@@ -43,23 +42,21 @@ class Shader
      */
     public function shade($temperature)
     {
-        $color = $this->getShade($this->getFactor($temperature));
+        $hue = $this->getHue(
+            $this->getFactor($temperature)
+        );
 
-        return sprintf("#%02x%02x%02x", $color[0], $color[1], $color[2]);
+        return 'rgb(' . implode(',', ColorManipulation::hslToRgb($hue)) . ')';
     }
 
     public function getWarmestColor()
     {
-        $color = $this->getShade($this->getFactor($this->maxTemperature));
-
-        return sprintf("#%02x%02x%02x", $color[0], $color[1], $color[2]);
+        $color = $this->shade($this->maxTemperature);
     }
 
     public function getCoolestColor()
     {
-        $color = $this->getShade($this->getFactor($this->minTemperature));
-
-        return sprintf("#%02x%02x%02x", $color[0], $color[1], $color[2]);
+        $color = $this->shade($this->minTemperature);
     }
 
     /**
@@ -71,15 +68,23 @@ class Shader
      */
     public function getFactor($temperature)
     {
+        if ($temperature >= $this->maxTemperature) {
+            return 100;
+        }
+        else if ($temperature <= $this->minTemperature) {
+            return 0;
+        }
+
         return ($temperature - $this->minTemperature)/($this->maxTemperature-$this->minTemperature);
     }
 
-    public function getShade($factor)
+    public function getHue($factor)
     {
-        return [
-            $factor * ($this->toRGBColor[0] - $this->fromRGBColor[0]) + $this->fromRGBColor[0],
-            $factor * ($this->toRGBColor[1] - $this->fromRGBColor[1]) + $this->fromRGBColor[1],
-            $factor * ($this->toRGBColor[2] - $this->fromRGBColor[2]) + $this->fromRGBColor[2],
-        ];
+        $range = 360 - abs($this->maxTemperature - $this->minTemperature);
+
+
+        $hue = intval($this->minTemperature - ($factor * $range));
+
+        return ($hue < 0) ? 360 + $hue : $hue;
     }
 }

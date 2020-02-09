@@ -6,8 +6,8 @@
 parameters:
     min_temperature: -10
     max_temperature: 30
-    cold_color: [32, 175, 204]
-    hot_color: [239, 75, 43]
+    cold_color: 230
+    hot_color: 349
 
 services:
     # default configuration for services in *this* file
@@ -24,8 +24,8 @@ services:
     App\Service\Shader:
         $minTemperature: '%min_temperature%'
         $maxTemperature: '%max_temperature%'
-        $fromRGBColor: '%cold_color%'
-        $toRGBColor: '%hot_color%'
+        $fromHueColor: '%cold_color%'
+        $toHueColor: '%hot_color%'
 
     # controllers are imported separately to make sure services can be injected
     # as action arguments even if you don't extend any base controller class
